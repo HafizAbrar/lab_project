@@ -12,4 +12,6 @@ class UsersRepositoryImpl implements UsersRepository {
 
   @override
   Future<UserDto> createUser(CreateUserDto dto) => _remote.createUser(dto);
+  @override
+  Future<void> deleteUser(String userId) => _remote.deleteUser(userId);
 }

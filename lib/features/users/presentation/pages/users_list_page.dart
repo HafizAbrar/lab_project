@@ -6,6 +6,7 @@ import '../providers/users_providers.dart';
 class UsersListPage extends ConsumerWidget {
   const UsersListPage({super.key});
 
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final usersAsync = ref.watch(usersListProvider);
@@ -15,7 +16,8 @@ class UsersListPage extends ConsumerWidget {
         title: const Text('Users Management'),
         actions: [
           IconButton(
-            onPressed: () => context.go('/users/create'), // Use go_router instead of Navigator.pushNamed
+            onPressed: () => context.go('/users/create'),
+            // Use go_router instead of Navigator.pushNamed
             icon: const Icon(Icons.add),
             tooltip: 'Add User',
           ),
@@ -45,18 +47,20 @@ class UsersListPage extends ConsumerWidget {
               itemBuilder: (context, index) {
                 final user = users[index];
                 return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  margin: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 8),
                   child: ListTile(
                     leading: CircleAvatar(
                       child: Text(
-                        user.fullName?.substring(0, 1).toUpperCase() ?? 
-                        user.email.substring(0, 1).toUpperCase(),
+                        user.fullName?.substring(0, 1).toUpperCase() ??
+                            user.email.substring(0, 1).toUpperCase(),
                       ),
                     ),
                     title: Text(user.fullName ?? 'No Name'),
                     subtitle: Text(user.email),
                     trailing: PopupMenuButton(
-                      itemBuilder: (context) => [
+                      itemBuilder: (context) =>
+                      [
                         const PopupMenuItem(
                           value: 'edit',
                           child: Row(
@@ -73,7 +77,8 @@ class UsersListPage extends ConsumerWidget {
                             children: [
                               Icon(Icons.delete, color: Colors.red),
                               SizedBox(width: 8),
-                              Text('Delete', style: TextStyle(color: Colors.red)),
+                              Text('Delete',
+                                  style: TextStyle(color: Colors.red)),
                             ],
                           ),
                         ),
@@ -121,26 +126,36 @@ class UsersListPage extends ConsumerWidget {
   void _showDeleteDialog(BuildContext context, WidgetRef ref, String userId) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete User'),
-        content: const Text('Are you sure you want to delete this user?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+      builder: (context) =>
+          AlertDialog(
+            title: const Text('Delete User'),
+            content: const Text('Are you sure you want to delete this user?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () async {
+                  Navigator.of(context).pop();
+
+                  // Call provider to delete user
+                  try {
+                    await ref.read(deleteUserProvider(userId).future);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('User deleted successfully')),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error deleting user: $e')),
+                    );
+                  }
+                },
+                child: const Text('Delete'),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              // TODO: Implement delete functionality
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Delete functionality not implemented yet')),
-              );
-            },
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
     );
   }
 }

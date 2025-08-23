@@ -68,6 +68,12 @@ class CreateUserController extends StateNotifier<AsyncValue<UserDto?>> {
     }
   }
 }
+final deleteUserProvider = FutureProvider.family<void, String>((ref, userId) async {
+  final repo = ref.watch(usersRepositoryProvider);
+  await repo.deleteUser(userId);
+  // After delete, refresh the list
+  ref.invalidate(usersListProvider);
+});
 
 final createUserControllerProvider =
     StateNotifierProvider<CreateUserController, AsyncValue<UserDto?>>(

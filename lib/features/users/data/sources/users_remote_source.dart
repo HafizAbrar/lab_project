@@ -54,4 +54,7 @@ class UsersRemoteSource {
       rethrow;
     }
   }
+  Future<void> deleteUser(String userId) async {
+    await _dio.delete('/users/$userId'); // 👈 adjust API endpoint if needed
+  }
 }

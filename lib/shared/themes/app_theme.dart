@@ -105,7 +105,7 @@ class AppTheme {
       scaffoldBackgroundColor: colorScheme.background,
 
       // Card Theme
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: elevationLow,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusMedium),
@@ -369,7 +369,7 @@ class AppTheme {
       ),
 
       // Dialog Theme
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: colorScheme.surface,
         elevation: elevationHigh,
         shape: RoundedRectangleBorder(
@@ -560,7 +560,7 @@ class AppTheme {
       scaffoldBackgroundColor: colorScheme.background,
 
       // Card Theme
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: elevationMedium,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusMedium),
