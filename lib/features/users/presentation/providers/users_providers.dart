@@ -1,6 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dio/dio.dart';
-
 import 'package:lab_app/features/users/data/models/create_user_dto.dart';
 import 'package:lab_app/features/users/data/models/user_dto.dart';
 import 'package:lab_app/features/users/data/sources/users_remote_source.dart';
@@ -9,6 +7,8 @@ import 'package:lab_app/features/users/domain/repositories/users_repository.dart
 
 // <-- adjust import path to your actual dioProvider location
 import 'package:lab_app/features/auth/presentation/providers/auth_providers.dart';
+
+import '../../data/models/update_user_dto.dart';
 
 final usersRemoteProvider = Provider<UsersRemoteSource>((ref) {
   final dio = ref.watch(dioProvider); // same Dio with auth interceptor
@@ -79,3 +79,37 @@ final createUserControllerProvider =
     StateNotifierProvider<CreateUserController, AsyncValue<UserDto?>>(
       (ref) => CreateUserController(ref, ref.watch(usersRepositoryProvider)),
     );
+
+final updateUserProvider = FutureProvider.family<UserDto, Map<String, dynamic>>((ref, params) async {
+  final repo = ref.read(usersRepositoryProvider);
+  final userId = params['id'] as String;
+  final dto = params['data'] as UpdateUserDto;
+  final updated = await repo.updateUser(userId, dto );
+
+  // refresh users list after update
+  ref.invalidate(usersListProvider);
+  return updated;
+});
+class UpdateUserController extends StateNotifier<AsyncValue<UserDto?>> {
+  UpdateUserController(this._ref, this._repo)
+      : super(const AsyncValue.data(null));
+
+  final Ref _ref;
+  final UsersRepository _repo;
+
+  Future<void> submit(String userId, UpdateUserDto dto) async {
+    state = const AsyncValue.loading();
+    try {
+      final updated = await _repo.updateUser(userId, dto);
+      _ref.invalidate(usersListProvider);
+      state = AsyncValue.data(updated);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+}
+
+final updateUserControllerProvider =
+StateNotifierProvider<UpdateUserController, AsyncValue<UserDto?>>(
+      (ref) => UpdateUserController(ref, ref.watch(usersRepositoryProvider)),
+);

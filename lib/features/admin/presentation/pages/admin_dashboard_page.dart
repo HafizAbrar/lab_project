@@ -1,16 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 
 class AdminDashboardPage extends ConsumerWidget {
   const AdminDashboardPage({super.key});
-
+  Future<bool> _showExitDialog(BuildContext context) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Exit App"),
+        content: const Text("Are you sure you want to exit?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text("No"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text("Yes"),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateProvider);
 
-    return Scaffold(
+    return PopScope(
+        canPop: false, // Prevent default pop until confirmed
+        onPopInvoked: (didPop) async {
+          if (!didPop) {
+            bool shouldExit = await _showExitDialog(context);
+            if (shouldExit) {
+              SystemNavigator.pop(); // Exit the app
+            }
+          }
+        },
+        child:Scaffold(
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
         actions: [
@@ -84,66 +114,69 @@ class AdminDashboardPage extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Quick Actions',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Card(
-                                child: InkWell(
-                                  onTap: () {
-                                    // ScaffoldMessenger.of(context).showSnackBar(
-                                    //   const SnackBar(content: Text('User management coming soon!')),
-                                    // );
-                                    context.go('/users');
-                                  },
-                                  child: const Padding(
-                                    padding: EdgeInsets.all(16.0),
-                                    child: Column(
-                                      children: [
-                                        Icon(Icons.people, size: 32),
-                                        SizedBox(height: 8),
-                                        Text('Manage Users'),
-                                      ],
+                Flexible(
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Quick Actions',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Card(
+                                  child: InkWell(
+                                    onTap: () {
+                                      // ScaffoldMessenger.of(context).showSnackBar(
+                                      //   const SnackBar(content: Text('User management coming soon!')),
+                                      // );
+                                      context.push('/users');
+                                    },
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(16.0),
+                                      child: Column(
+                                        children: [
+                                          Icon(Icons.people, size: 32),
+                                          SizedBox(height: 8),
+                                          Text('Manage Users'),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Card(
-                                child: InkWell(
-                                  onTap: () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Settings coming soon!')),
-                                    );
-                                  },
-                                  child: const Padding(
-                                    padding: EdgeInsets.all(16.0),
-                                    child: Column(
-                                      children: [
-                                        Icon(Icons.settings, size: 32),
-                                        SizedBox(height: 8),
-                                        Text('Settings'),
-                                      ],
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Card(
+                                  child: InkWell(
+                                    onTap: () {
+                                      // ScaffoldMessenger.of(context).showSnackBar(
+                                      //   const SnackBar(content: Text('Settings coming soon!')),
+                                      // );
+                                      context.push('/roles');
+                                    },
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(16.0),
+                                      child: Column(
+                                        children: [
+                                          Icon(Icons.people, size: 32),
+                                          SizedBox(height: 8),
+                                          Text('Manage Roles'),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -168,6 +201,7 @@ class AdminDashboardPage extends ConsumerWidget {
           ),
         ),
       ),
+        ),
     );
   }
 }

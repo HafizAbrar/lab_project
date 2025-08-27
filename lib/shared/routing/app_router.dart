@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lab_app/features/users/presentation/pages/user_edit_page.dart';
 import 'dart:async';
+import '../../features/auth/data/models/user_dto.dart' as auth_models;
 import '../../features/auth/presentation/providers/auth_providers.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/pages/splash_gate.dart';
 import '../../features/admin/presentation/pages/admin_dashboard_page.dart';
+import '../../features/roles/presentation/pages/roles_list_page.dart';
+import '../../features/users/data/models/user_dto.dart';
 import '../../features/users/presentation/pages/users_list_page.dart';
-import '../../features/users/presentation/pages/user_form_page.dart';
+import '../../features/users/presentation/pages/createUser_form_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final auth = ref.watch(authStateProvider);
@@ -31,6 +35,21 @@ final routerProvider = Provider<GoRouter>((ref) {
       path: '/users/create',
       builder: (context, state) => const UserFormPage(),
     ),
+      GoRoute(
+        path: '/users/:id/edit',
+        builder: (context, state) {
+          final userId = state.pathParameters['id']!;
+          // Option A: If you pass full user via extra:
+          final user = state.extra as UserDto?;
+          return EditUserPage(userId: userId, user: user);
+        },
+      ),
+      GoRoute(
+        path: '/roles',
+        builder: (context, state) => const RolesListPage(),
+      ),
+
+
     ],
     redirect: (ctx, state) {
       final user = auth.valueOrNull;

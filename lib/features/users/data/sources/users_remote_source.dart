@@ -1,10 +1,16 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+import '../models/update_user_dto.dart';
 import '../models/user_dto.dart';
 import '../models/create_user_dto.dart';
 
 class UsersRemoteSource {
   UsersRemoteSource(this._dio);
   final Dio _dio;
+
+  // 🔑 Secure storage instance
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   /// GET /users  -> ServiceResponse<User[]>
   Future<List<UserDto>> findAll() async {
@@ -23,7 +29,7 @@ class UsersRemoteSource {
 
       final list = (data as List?) ?? const [];
       final users =
-          list.map((j) => UserDto.fromJson(j as Map<String, dynamic>)).toList();
+      list.map((j) => UserDto.fromJson(j as Map<String, dynamic>)).toList();
 
       print('Parsed ${users.length} users');
       return users;
@@ -54,7 +60,30 @@ class UsersRemoteSource {
       rethrow;
     }
   }
+
+  /// DELETE /users/{id}
   Future<void> deleteUser(String userId) async {
     await _dio.delete('/users/$userId'); // 👈 adjust API endpoint if needed
+  }
+
+  /// PATCH /users/{id}  -> ServiceResponse<User>
+  Future<UserDto> updateUser(String userId, UpdateUserDto dto) async {
+    final data = dto.toJson()..removeWhere((key, value) => value == null);
+
+    // ✅ Read token from secure storage
+    final token = await _storage.read(key: 'access_token');
+
+    final response = await _dio.patch(
+      '/users/$userId',
+      data: data,
+      options: Options(
+        headers: {
+          'Accept': 'application/json',
+          if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+        },
+      ),
+    );
+
+    return UserDto.fromJson(response.data['data']); // backend wraps response in data
   }
 }

@@ -1,12 +1,15 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import '../../../roles/data/models/role_dto.dart';
+
 part 'user_dto.g.dart';
 
 @JsonSerializable()
 class UserDto {
+  final String? password;
   final String id;
   final String email;
-
+  final RoleDto? role;
   @JsonKey(name: 'fullName')
   final String fullName;
 
@@ -17,6 +20,8 @@ class UserDto {
   final DateTime? updatedAt;
 
   UserDto({
+    this.password,
+    required this.role,
     required this.id,
     required this.email,
     required this.fullName,

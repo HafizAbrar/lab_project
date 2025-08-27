@@ -18,19 +18,20 @@ class AuthInterceptor extends Interceptor {
       } else {
         print('⚠️ No auth token found for ${options.method} ${options.path}');
       }
+      handler.next(options); // ✅ only continue after token is checked
     } catch (e) {
       print('❌ Error reading auth token: $e');
+      handler.next(options); // still continue the request
     }
-    handler.next(options);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     print('❌ Request failed: ${err.response?.statusCode} ${err.requestOptions.path}');
-    
+
     if (err.response?.statusCode == 401) {
       print('🔄 Attempting token refresh...');
-      
+
       try {
         final refreshToken = await _storage.read(key: _refreshTokenKey);
         if (refreshToken == null) {
@@ -39,10 +40,10 @@ class AuthInterceptor extends Interceptor {
           return handler.next(err);
         }
 
-        // Create a new Dio instance for refresh to avoid interceptor loop
-        final refreshDio = Dio();
+        // Use a temporary Dio only for refresh
+        final refreshDio = Dio(BaseOptions(baseUrl: err.requestOptions.baseUrl));
         final response = await refreshDio.post(
-          '${err.requestOptions.baseUrl}/auth/refresh',
+          '/auth/refresh',
           data: {'refreshToken': refreshToken},
         );
 
@@ -60,12 +61,10 @@ class AuthInterceptor extends Interceptor {
             print('✅ New refresh token stored');
           }
 
-          // Retry original request with new token
+          // Retry the original request with updated token
           if (newAccessToken != null) {
-            final opts = err.requestOptions;
-            opts.headers['Authorization'] = 'Bearer $newAccessToken';
-            final retryResponse = await Dio().fetch(opts);
-            return handler.resolve(retryResponse);
+            final cloneReq = await _retryRequest(err.requestOptions, newAccessToken);
+            return handler.resolve(cloneReq);
           }
         }
       } catch (refreshError) {
@@ -73,8 +72,21 @@ class AuthInterceptor extends Interceptor {
         await _clearTokens();
       }
     }
-    
+
     handler.next(err);
+  }
+  Future<void> printStoredToken() async {
+    String? token = await _storage.read(key: 'access_token');
+    if (token != null) {
+      print("🔑 Stored Access Token: $token");
+    } else {
+      print("⚠️ No access_token found in storage!");
+    }
+  }
+  Future<Response<dynamic>> _retryRequest(RequestOptions requestOptions, String token) async {
+    final dio = Dio(BaseOptions(baseUrl: requestOptions.baseUrl));
+    requestOptions.headers['Authorization'] = 'Bearer $token';
+    return dio.fetch(requestOptions);
   }
 
   Future<void> _clearTokens() async {
@@ -83,3 +95,4 @@ class AuthInterceptor extends Interceptor {
     print('🗑️ Tokens cleared');
   }
 }
+

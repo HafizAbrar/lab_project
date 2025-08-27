@@ -13,10 +13,14 @@ class UsersListPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () => context.go('/admin'),
+          icon: const Icon(Icons.arrow_back_ios),
+        ),
         title: const Text('Users Management'),
         actions: [
           IconButton(
-            onPressed: () => context.go('/users/create'),
+            onPressed: () => context.push('/users/create'),
             // Use go_router instead of Navigator.pushNamed
             icon: const Icon(Icons.add),
             tooltip: 'Add User',
@@ -57,8 +61,22 @@ class UsersListPage extends ConsumerWidget {
                       ),
                     ),
                     title: Text(user.fullName ?? 'No Name'),
-                    subtitle: Text(user.email),
-                    trailing: PopupMenuButton(
+                    subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(user.email),
+                      const SizedBox(height: 4),
+                      Text(
+                        user.role?.name ?? 'No Role', // 👈 show role name safely
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.blueGrey[700],
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
+                  ),
+                  trailing: PopupMenuButton(
                       itemBuilder: (context) =>
                       [
                         const PopupMenuItem(
@@ -83,18 +101,27 @@ class UsersListPage extends ConsumerWidget {
                           ),
                         ),
                       ],
-                      onSelected: (value) {
+                      onSelected: (value) async {
                         switch (value) {
                           case 'edit':
-                            context.go('/users/${user.id}/edit');
+                            final result = await context.push(
+                              '/users/${user.id}/edit',
+                              extra: user,
+                            );
+
+                            // 👇 If EditUserPage returns true, refresh the list
+                            if (result == true) {
+                              ref.invalidate(usersListProvider);
+                            }
                             break;
+
                           case 'delete':
                             _showDeleteDialog(context, ref, user.id);
                             break;
                         }
-                      },
-                    ),
-                    onTap: () => context.go('/users/${user.id}'),
+                      }
+                  ),
+                    onTap: () => context.push('/users/${user.id}'),
                   ),
                 );
               },
@@ -142,6 +169,7 @@ class UsersListPage extends ConsumerWidget {
                   // Call provider to delete user
                   try {
                     await ref.read(deleteUserProvider(userId).future);
+                    ref.invalidate(usersListProvider); // 👈 refresh list
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                           content: Text('User deleted successfully')),

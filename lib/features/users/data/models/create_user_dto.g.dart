@@ -11,6 +11,7 @@ CreateUserDto _$CreateUserDtoFromJson(Map<String, dynamic> json) =>
       email: json['email'] as String,
       password: json['password'] as String,
       fullName: json['fullName'] as String,
+      roleId: json['roleId'] as String,
     );
 
 Map<String, dynamic> _$CreateUserDtoToJson(CreateUserDto instance) =>
@@ -18,4 +19,5 @@ Map<String, dynamic> _$CreateUserDtoToJson(CreateUserDto instance) =>
       'email': instance.email,
       'password': instance.password,
       'fullName': instance.fullName,
+      'roleId': instance.roleId,
     };

@@ -10,11 +10,13 @@ class CreateUserDto {
   final String password;
   @JsonKey(name: 'fullName')
   final String fullName;
+  final String roleId;
 
   CreateUserDto({
     required this.email,
     required this.password,
     required this.fullName,
+    required this.roleId,
   });
 
   factory CreateUserDto.fromJson(Map<String, dynamic> json) =>
