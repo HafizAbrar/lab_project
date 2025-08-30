@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import '../models/createUserWithPermission_dto.dart';
 import '../models/update_user_dto.dart';
 import '../models/user_dto.dart';
 import '../models/create_user_dto.dart';
@@ -19,7 +20,6 @@ class UsersRemoteSource {
       final res = await _dio.get('/users');
       print('Users API response: ${res.data}');
 
-      // Handle different response structures
       dynamic data;
       if (res.data is Map<String, dynamic>) {
         data = res.data['data'];
@@ -46,7 +46,6 @@ class UsersRemoteSource {
       final res = await _dio.post('/users', data: dto.toJson());
       print('Create user response: ${res.data}');
 
-      // Handle different response structures
       dynamic data;
       if (res.data is Map<String, dynamic>) {
         data = res.data['data'];
@@ -63,7 +62,7 @@ class UsersRemoteSource {
 
   /// DELETE /users/{id}
   Future<void> deleteUser(String userId) async {
-    await _dio.delete('/users/$userId'); // 👈 adjust API endpoint if needed
+    await _dio.delete('/users/$userId');
   }
 
   /// PATCH /users/{id}  -> ServiceResponse<User>
@@ -84,6 +83,61 @@ class UsersRemoteSource {
       ),
     );
 
-    return UserDto.fromJson(response.data['data']); // backend wraps response in data
+    return UserDto.fromJson(response.data['data']);
+  }
+  /// POST /users/with-permissions  -> ServiceResponse<User>
+  Future<UserDto> createUserWithPermissions(CreateUserWithPermissionsDto dto) async {
+    try {
+      print('Creating user with permissions: ${dto.toJson()}');
+      final res = await _dio.post('/users/with-permissions', data: dto.toJson());
+      print('Create user with permissions response: ${res.data}');
+
+      dynamic data;
+      if (res.data is Map<String, dynamic>) {
+        data = res.data['data'];
+      } else {
+        data = res.data;
+      }
+
+      return UserDto.fromJson(data as Map<String, dynamic>);
+    } catch (e) {
+      print('Error creating user with permissions: $e');
+      rethrow;
+    }
+  }
+
+  /// ✅ GET /permissions  -> ServiceResponse<Permission[]>
+  Future<List<String>> getAllPermissions() async {
+    try {
+      print('Fetching permissions from API...');
+      final token = await _storage.read(key: 'access_token');
+
+      final res = await _dio.get(
+        '/permissions',
+        options: Options(
+          headers: {
+            'Accept': 'application/json',
+            if (token != null && token.isNotEmpty)
+              'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      print('Permissions API response: ${res.data}');
+
+      dynamic data;
+      if (res.data is Map<String, dynamic>) {
+        data = res.data['data'];
+      } else {
+        data = res.data;
+      }
+
+      final list = (data as List?) ?? const [];
+      return list.map((e) => e.toString()).toList();
+    } catch (e) {
+      print('Error fetching permissions: $e');
+      rethrow;
+    }
   }
 }
+

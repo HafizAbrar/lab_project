@@ -12,7 +12,7 @@ import '../../features/admin/presentation/pages/admin_dashboard_page.dart';
 import '../../features/roles/presentation/pages/roles_list_page.dart';
 import '../../features/users/data/models/user_dto.dart';
 import '../../features/users/presentation/pages/users_list_page.dart';
-import '../../features/users/presentation/pages/createUser_form_page.dart';
+import '../../features/users/presentation/pages/createUser_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final auth = ref.watch(authStateProvider);
