@@ -10,6 +10,7 @@ import 'package:lab_app/features/auth/presentation/providers/auth_providers.dart
 
 import '../../data/models/createUserWithPermission_dto.dart';
 import '../../data/models/update_user_dto.dart';
+import '../../data/models/user_permissions_dto.dart';
 
 final usersRemoteProvider = Provider<UsersRemoteSource>((ref) {
   final dio = ref.watch(dioProvider); // same Dio with auth interceptor
@@ -69,7 +70,12 @@ final createUserControllerProvider =
 StateNotifierProvider<CreateUserController, AsyncValue<UserDto?>>(
       (ref) => CreateUserController(ref, ref.watch(usersRepositoryProvider)),
 );
-
+/// Fetch permissions of a specific user
+final userPermissionsProvider =
+FutureProvider.family<UserPermissionsDto, String>((ref, userId) async {
+  final repo = ref.watch(usersRepositoryProvider);
+  return await repo.getUserPermissions(userId);
+});
 /// Create user with permissions controller
 class CreateUserWithPermissionsController
     extends StateNotifier<AsyncValue<UserDto?>> {

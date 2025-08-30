@@ -45,7 +45,7 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
                       .where((perm) =>
                   perm.name.toLowerCase().contains(query.toLowerCase()) ||
                       perm.description
-                          .toLowerCase()
+                          !.toLowerCase()
                           .contains(query.toLowerCase()))
                       .toList();
                 }
@@ -76,7 +76,7 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
                         children: filteredPermissions.map((perm) {
                           return CheckboxListTile(
                             title: Text(perm.name),
-                            subtitle: Text(perm.description),
+                            subtitle: Text(perm.description!),
                             value: tempSelected.contains(perm.id),
                             onChanged: (checked) {
                               setState(() {

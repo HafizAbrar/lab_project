@@ -80,6 +80,16 @@ class UsersListPage extends ConsumerWidget {
                       itemBuilder: (context) =>
                       [
                         const PopupMenuItem(
+                          value: 'permissions',
+                          child: Row(
+                            children: [
+                              Icon(Icons.perm_contact_calendar_outlined),
+                              SizedBox(width: 8),
+                              Text('Show Permissions'),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem(
                           value: 'edit',
                           child: Row(
                             children: [
@@ -103,6 +113,12 @@ class UsersListPage extends ConsumerWidget {
                       ],
                       onSelected: (value) async {
                         switch (value) {
+                          case 'permissions':
+                            final result = await context.push(
+                              '/users/${user.id}/permissions',
+                              extra: user,
+                            );
+                            break;
                           case 'edit':
                             final result = await context.push(
                               '/users/${user.id}/edit',

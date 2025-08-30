@@ -5,6 +5,7 @@ import 'package:lab_app/features/users/domain/repositories/users_repository.dart
 
 import '../models/createUserWithPermission_dto.dart';
 import '../models/update_user_dto.dart';
+import '../models/user_permissions_dto.dart';
 
 class UsersRepositoryImpl implements UsersRepository {
   UsersRepositoryImpl(this._remote);
@@ -12,6 +13,9 @@ class UsersRepositoryImpl implements UsersRepository {
 
   @override
   Future<List<UserDto>> findAll() => _remote.findAll();
+  @override
+  Future<UserPermissionsDto> getUserPermissions(String userId) =>
+      _remote.getUserPermissions(userId);
 
   @override
   Future<UserDto> createUser(CreateUserDto dto) => _remote.createUser(dto);

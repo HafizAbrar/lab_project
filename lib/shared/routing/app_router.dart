@@ -11,6 +11,7 @@ import '../../features/auth/presentation/pages/splash_gate.dart';
 import '../../features/admin/presentation/pages/admin_dashboard_page.dart';
 import '../../features/roles/presentation/pages/roles_list_page.dart';
 import '../../features/users/data/models/user_dto.dart';
+import '../../features/users/presentation/pages/userPermissions_page.dart';
 import '../../features/users/presentation/pages/users_list_page.dart';
 import '../../features/users/presentation/pages/createUser_page.dart';
 
@@ -48,7 +49,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/roles',
         builder: (context, state) => const RolesListPage(),
       ),
-
+      GoRoute(
+        path: '/users/:id/permissions',
+        builder: (context, state) {
+          final userId = state.pathParameters['id']!;
+          return UserPermissionsScreen(userId: userId);
+        },
+      ),
 
     ],
     redirect: (ctx, state) {

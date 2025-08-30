@@ -5,6 +5,7 @@ import '../models/createUserWithPermission_dto.dart';
 import '../models/update_user_dto.dart';
 import '../models/user_dto.dart';
 import '../models/create_user_dto.dart';
+import '../models/user_permissions_dto.dart';
 
 class UsersRemoteSource {
   UsersRemoteSource(this._dio);
@@ -84,6 +85,34 @@ class UsersRemoteSource {
     );
 
     return UserDto.fromJson(response.data['data']);
+  }
+  /// ✅ GET /users/{id}/permissions -> ServiceResponse<UserPermissionsDto>
+  Future<UserPermissionsDto> getUserPermissions(String userId) async {
+    try {
+      final token = await _storage.read(key: 'access_token');
+      final res = await _dio.get(
+        '/users/$userId/permissions',
+        options: Options(
+          headers: {
+            'Accept': 'application/json',
+            if (token != null && token.isNotEmpty)
+              'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      dynamic data;
+      if (res.data is Map<String, dynamic>) {
+        data = res.data['data'];
+      } else {
+        data = res.data;
+      }
+
+      return UserPermissionsDto.fromJson(data);
+    } catch (e) {
+      print('Error fetching user permissions: $e');
+      rethrow;
+    }
   }
   /// POST /users/with-permissions  -> ServiceResponse<User>
   Future<UserDto> createUserWithPermissions(CreateUserWithPermissionsDto dto) async {

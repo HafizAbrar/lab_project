@@ -2,6 +2,7 @@ import '../../../users/data/models/create_user_dto.dart';
 import '../../../users/data/models/user_dto.dart';
 import '../../data/models/createUserWithPermission_dto.dart';
 import '../../data/models/update_user_dto.dart';
+import '../../data/models/user_permissions_dto.dart';
 
 abstract interface class UsersRepository {
   Future<List<UserDto>> findAll();
@@ -9,5 +10,6 @@ abstract interface class UsersRepository {
   Future<UserDto> createUserWithPermissions(CreateUserWithPermissionsDto dto); // ✅ add this
   Future<void> deleteUser(String userId);
   Future<UserDto> updateUser(String userId, UpdateUserDto dto);
+  Future<UserPermissionsDto> getUserPermissions(String userId);
 }
 
