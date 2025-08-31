@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../../permissions/data/modals/permission_dto.dart';
 import '../models/createUserWithPermission_dto.dart';
+import '../models/feature_dto.dart';
 import '../models/updatePermissions_dto.dart';
 import '../models/update_user_dto.dart';
 import '../models/user_dto.dart';
@@ -148,6 +149,39 @@ class UsersRemoteSource {
       '/users/$userId/permissions',
       data: dto.toJson(),
     );
+  }
+  /// get all features and actions
+  /// ✅ GET /users/available-features -> ServiceResponse<Feature[]>
+  Future<List<FeatureDto>> getAllFeatures() async {
+    try {
+      final token = await _storage.read(key: 'access_token');
+
+      final res = await _dio.get(
+        '/users/available-features', // ✅ FIXED ENDPOINT
+        options: Options(
+          headers: {
+            'Accept': 'application/json',
+            if (token != null && token.isNotEmpty)
+              'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      dynamic data;
+      if (res.data is Map<String, dynamic>) {
+        data = res.data['data'];
+      } else {
+        data = res.data;
+      }
+
+      final list = (data as List?) ?? const [];
+      return list
+          .map((e) => FeatureDto.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      print('Error fetching features: $e');
+      rethrow;
+    }
   }
   /// ✅ GET /permissions  -> ServiceResponse<Permission[]>
   Future<List<PermissionDto>> getAllPermissions() async {

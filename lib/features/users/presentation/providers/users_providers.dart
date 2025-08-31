@@ -10,6 +10,7 @@ import 'package:lab_app/features/auth/presentation/providers/auth_providers.dart
 
 import '../../../permissions/data/modals/permission_dto.dart';
 import '../../data/models/createUserWithPermission_dto.dart';
+import '../../data/models/feature_dto.dart';
 import '../../data/models/update_user_dto.dart';
 import '../../data/models/user_permissions_dto.dart';
 
@@ -159,6 +160,11 @@ class UpdateUserController extends StateNotifier<AsyncValue<UserDto?>> {
     }
   }
 }
+/// Provider to fetch all features
+final allFeaturesProvider = FutureProvider<List<FeatureDto>>((ref) async {
+  final repo = ref.watch(usersRepositoryProvider);
+  return await repo.getAllFeatures();
+});
 /// Search query state for permissions
 final searchQueryProvider = StateProvider<String>((ref) => "");
 

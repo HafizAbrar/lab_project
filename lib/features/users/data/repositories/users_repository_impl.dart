@@ -5,6 +5,7 @@ import 'package:lab_app/features/users/domain/repositories/users_repository.dart
 
 import '../../../permissions/data/modals/permission_dto.dart';
 import '../models/createUserWithPermission_dto.dart';
+import '../models/feature_dto.dart';
 import '../models/updatePermissions_dto.dart';
 import '../models/update_user_dto.dart';
 import '../models/user_permissions_dto.dart';
@@ -41,6 +42,9 @@ class UsersRepositoryImpl implements UsersRepository {
   }
   @override
   Future<void> deleteUser(String userId) => _remote.deleteUser(userId);
+
+  @override
+  Future<List<FeatureDto>> getAllFeatures() => _remote.getAllFeatures();
 
   @override
   Future<UserDto> updateUser(String userId, UpdateUserDto dto) =>
