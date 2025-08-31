@@ -8,6 +8,7 @@ import 'package:lab_app/features/users/domain/repositories/users_repository.dart
 // <-- adjust import path to your actual dioProvider location
 import 'package:lab_app/features/auth/presentation/providers/auth_providers.dart';
 
+import '../../../permissions/data/modals/permission_dto.dart';
 import '../../data/models/createUserWithPermission_dto.dart';
 import '../../data/models/update_user_dto.dart';
 import '../../data/models/user_permissions_dto.dart';
@@ -70,12 +71,27 @@ final createUserControllerProvider =
 StateNotifierProvider<CreateUserController, AsyncValue<UserDto?>>(
       (ref) => CreateUserController(ref, ref.watch(usersRepositoryProvider)),
 );
+
+/// All permissions provider
+final allPermissionsProvider = FutureProvider<List<PermissionDto>>((ref) async {
+  final repo = ref.watch(usersRepositoryProvider);
+  return await repo.getAllPermissions();
+});
+
 /// Fetch permissions of a specific user
 final userPermissionsProvider =
 FutureProvider.family<UserPermissionsDto, String>((ref, userId) async {
   final repo = ref.watch(usersRepositoryProvider);
-  return await repo.getUserPermissions(userId);
+  final userPerms = await repo.getUserPermissions(userId);
+
+  // 🚀 initialize selected permissions safely
+  ref.read(selectedPermissionsProvider.notifier).setPermissions(
+    (userPerms.permissions ?? []).map((p) => p.id).toSet(),
+  );
+
+  return userPerms;
 });
+
 /// Create user with permissions controller
 class CreateUserWithPermissionsController
     extends StateNotifier<AsyncValue<UserDto?>> {
@@ -99,9 +115,10 @@ class CreateUserWithPermissionsController
 }
 
 final createUserWithPermissionsControllerProvider =
-StateNotifierProvider<CreateUserWithPermissionsController, AsyncValue<UserDto?>>(
-      (ref) =>
-      CreateUserWithPermissionsController(ref, ref.watch(usersRepositoryProvider)),
+StateNotifierProvider<CreateUserWithPermissionsController,
+    AsyncValue<UserDto?>>(
+      (ref) => CreateUserWithPermissionsController(
+      ref, ref.watch(usersRepositoryProvider)),
 );
 
 /// Delete user provider
@@ -142,8 +159,32 @@ class UpdateUserController extends StateNotifier<AsyncValue<UserDto?>> {
     }
   }
 }
+/// Search query state for permissions
+final searchQueryProvider = StateProvider<String>((ref) => "");
 
 final updateUserControllerProvider =
 StateNotifierProvider<UpdateUserController, AsyncValue<UserDto?>>(
       (ref) => UpdateUserController(ref, ref.watch(usersRepositoryProvider)),
+);
+
+/// Selected permissions state
+class SelectedPermissionsNotifier extends StateNotifier<Set<String>> {
+  SelectedPermissionsNotifier(super.initial);
+
+  void togglePermission(String id) {
+    if (state.contains(id)) {
+      state = {...state}..remove(id); // uncheck
+    } else {
+      state = {...state}..add(id); // check
+    }
+  }
+
+  void setPermissions(Set<String> ids) {
+    state = ids;
+  }
+}
+
+final selectedPermissionsProvider =
+StateNotifierProvider<SelectedPermissionsNotifier, Set<String>>(
+      (ref) => SelectedPermissionsNotifier({}),
 );

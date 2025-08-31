@@ -6,7 +6,7 @@ class Env {
     'API_BASE_URL',
     defaultValue: 'https://adminapi.labverse.org',
   );
-  static const String? sentryDsn = String.fromEnvironment(
+  static const String sentryDsn = String.fromEnvironment(
     'SENTRY_DSN',
     defaultValue: '',
   );

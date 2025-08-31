@@ -84,8 +84,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                     // Error is already handled by the auth provider
                                     // The error will show via the auth state watcher above
                                   } finally {
-                                    if (mounted)
+                                    if (mounted) {
                                       setState(() => loading = false);
+                                    }
                                   }
                                 }
                               },

@@ -36,7 +36,7 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            void _filterPermissions(String query) {
+            void filterPermissions(String query) {
               setState(() {
                 if (query.isEmpty) {
                   filteredPermissions = List.from(permissions);
@@ -66,7 +66,7 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
                         prefixIcon: Icon(Icons.search),
                         hintText: "Search permissions...",
                       ),
-                      onChanged: _filterPermissions,
+                      onChanged: filterPermissions,
                     ),
                     const SizedBox(height: 10),
                     // Permissions list

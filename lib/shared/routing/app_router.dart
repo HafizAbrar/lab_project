@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lab_app/features/users/presentation/pages/user_edit_page.dart';
 import 'dart:async';
-import '../../features/auth/data/models/user_dto.dart' as auth_models;
 import '../../features/auth/presentation/providers/auth_providers.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
@@ -29,18 +28,17 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/register', builder: (_, __) => const RegisterPage()),
       GoRoute(path: '/admin', builder: (_, __) => const AdminDashboardPage()),
       GoRoute(
-      path: '/users',
-      builder: (context, state) => const UsersListPage(),
-    ),
-    GoRoute(
-      path: '/users/create',
-      builder: (context, state) => const UserFormPage(),
-    ),
+        path: '/users',
+        builder: (context, state) => const UsersListPage(),
+      ),
+      GoRoute(
+        path: '/users/create',
+        builder: (context, state) => const UserFormPage(),
+      ),
       GoRoute(
         path: '/users/:id/edit',
         builder: (context, state) {
           final userId = state.pathParameters['id']!;
-          // Option A: If you pass full user via extra:
           final user = state.extra as UserDto?;
           return EditUserPage(userId: userId, user: user);
         },
@@ -52,11 +50,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/users/:id/permissions',
         builder: (context, state) {
-          final userId = state.pathParameters['id']!;
-          return UserPermissionsScreen(userId: userId);
+          final extras = state.extra as Map<String, dynamic>;
+          final user = extras['user'] as UserDto;
+          final mode = extras['mode'] as PermissionMode;
+
+          return UserPermissionsScreen(userId: user.id, mode: mode);
         },
       ),
-
     ],
     redirect: (ctx, state) {
       final user = auth.valueOrNull;
@@ -65,22 +65,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       final atSplash = state.matchedLocation == '/splash';
       final atUsers = state.matchedLocation.startsWith('/users');
 
-      // Let splash handle its own navigation to login
       if (atSplash) return null;
-
-      // If user is authenticated and trying to access login/register, redirect to admin
       if (user != null && (loggingIn || registering)) return '/admin';
-
-      // If user is not authenticated and not at login/register, redirect to login
       if (user == null && !loggingIn && !registering) return '/login';
-
-      // If user is authenticated but not admin and trying to access admin routes
       if (user != null &&
           !user.isAdmin &&
           (state.matchedLocation.startsWith('/admin') || atUsers)) {
         return '/login';
       }
-
       return null;
     },
   );

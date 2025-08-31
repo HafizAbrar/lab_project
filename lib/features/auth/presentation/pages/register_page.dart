@@ -7,7 +7,6 @@ import '../../data/models/register_dto.dart';
 // Ensure the correct import for authNotifierProvider
 // If authNotifierProvider is defined in auth_providers.dart, this import is correct.
 // Otherwise, update the import path below to the correct location:
-import '../providers/auth_providers.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
   const RegisterPage({super.key});

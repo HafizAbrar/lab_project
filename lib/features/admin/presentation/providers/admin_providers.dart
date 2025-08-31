@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/network/dio_client.dart';
 import '../../../../features/auth/presentation/providers/auth_providers.dart';
 import '../../data/repositories/admin_repository_impl.dart';
 import '../../data/sources/admin_remote_source.dart';

@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import '../../../permissions/data/modals/permission_dto.dart';
 import '../models/createUserWithPermission_dto.dart';
+import '../models/updatePermissions_dto.dart';
 import '../models/update_user_dto.dart';
 import '../models/user_dto.dart';
 import '../models/create_user_dto.dart';
@@ -86,6 +88,7 @@ class UsersRemoteSource {
 
     return UserDto.fromJson(response.data['data']);
   }
+
   /// ✅ GET /users/{id}/permissions -> ServiceResponse<UserPermissionsDto>
   Future<UserPermissionsDto> getUserPermissions(String userId) async {
     try {
@@ -134,9 +137,20 @@ class UsersRemoteSource {
       rethrow;
     }
   }
-
+  Future<void> assignPermissions(String userId, UpdatePermissionDto dto) async {
+    await _dio.post(
+      "/users/$userId/permissions",
+      data: dto.toJson(),
+    );
+  }
+  Future<void> updateUserPermissions(String userId, UpdatePermissionDto dto) async {
+    await _dio.post(
+      '/users/$userId/permissions',
+      data: dto.toJson(),
+    );
+  }
   /// ✅ GET /permissions  -> ServiceResponse<Permission[]>
-  Future<List<String>> getAllPermissions() async {
+  Future<List<PermissionDto>> getAllPermissions() async {
     try {
       print('Fetching permissions from API...');
       final token = await _storage.read(key: 'access_token');
@@ -162,7 +176,9 @@ class UsersRemoteSource {
       }
 
       final list = (data as List?) ?? const [];
-      return list.map((e) => e.toString()).toList();
+      return list
+          .map((e) => PermissionDto.fromJson(e as Map<String, dynamic>))
+          .toList();
     } catch (e) {
       print('Error fetching permissions: $e');
       rethrow;
