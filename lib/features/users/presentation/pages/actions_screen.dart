@@ -9,7 +9,7 @@ class FeatureActionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Actions of ${feature.feature}")),
+      appBar: AppBar(title: Text("${feature.feature}")),
       body: feature.actions.isEmpty
           ? const Center(child: Text("No actions available"))
           : ListView.builder(

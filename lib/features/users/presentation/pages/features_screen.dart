@@ -25,11 +25,14 @@ class FeaturesScreen extends ConsumerWidget {
               return Card(
                 margin: const EdgeInsets.all(8),
                 child: ListTile(
-                  title: Text(
-                    feature.feature,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  leading: CircleAvatar(
+                    child: Icon(Icons.lock,color: Colors.green,)
                   ),
-                  trailing: const Icon(Icons.arrow_forward_ios,color: Colors.green,),
+                  title: Text(
+                    feature.feature.toUpperCase(),
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
                     Navigator.push(
                       context,
