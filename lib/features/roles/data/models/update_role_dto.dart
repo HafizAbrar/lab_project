@@ -4,9 +4,10 @@ part 'update_role_dto.g.dart';
 
 @JsonSerializable()
 class UpdateRoleDto {
-  final String? name;
+  final String name;
+  final String description;
 
-  UpdateRoleDto({this.name});
+  UpdateRoleDto({required this.name, required this.description});
 
   factory UpdateRoleDto.fromJson(Map<String, dynamic> json) =>
       _$UpdateRoleDtoFromJson(json);

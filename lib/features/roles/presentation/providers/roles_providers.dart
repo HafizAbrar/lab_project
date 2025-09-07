@@ -4,33 +4,73 @@ import 'package:lab_app/core/network/dio_client.dart';
 import 'package:dio/dio.dart';
 
 import '../../data/models/role_dto.dart';
+import '../../data/models/create_role_dto.dart';
+import '../../data/models/update_role_dto.dart';
 import '../../data/repositories/roles_repository_impl.dart';
 import '../../data/sources/roles_remote_source.dart';
 import '../../domain/repositories/roles_repository.dart';
 
+// -----------------------
 // Secure storage provider
+// -----------------------
 final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
   return const FlutterSecureStorage();
 });
 
-// Dio provider using DioClient with AuthInterceptor
+// -----------------------
+// Dio provider using DioClient
+// -----------------------
 final dioProvider = Provider<Dio>((ref) {
   final storage = ref.read(secureStorageProvider);
   final client = DioClient(storage);
   return client.build();
 });
 
+// -----------------------
 // Remote source provider
+// -----------------------
 final rolesRemoteSourceProvider =
 Provider((ref) => RolesRemoteSource(ref.read(dioProvider)));
 
+// -----------------------
 // Repository provider
+// -----------------------
 final rolesRepositoryProvider = Provider<RolesRepository>(
       (ref) => RolesRepositoryImpl(ref.read(rolesRemoteSourceProvider)),
 );
 
+// -----------------------
 // Roles list provider
+// -----------------------
 final rolesListProvider = FutureProvider<List<RoleDto>>((ref) async {
   final repo = ref.read(rolesRepositoryProvider);
   return repo.getRoles();
+});
+
+// -----------------------
+// Create Role provider
+// -----------------------
+final createRoleProvider =
+FutureProvider.family<RoleDto, CreateRoleDto>((ref, dto) async {
+  final repo = ref.read(rolesRepositoryProvider);
+  return repo.createRole(dto);
+});
+
+// -----------------------
+// Update Role provider
+// -----------------------
+final updateRoleProvider = FutureProvider.family<RoleDto, Map<String, dynamic>>(
+        (ref, params) async {
+      final repo = ref.read(rolesRepositoryProvider);
+      final String roleId = params['roleId'];
+      final UpdateRoleDto dto = params['dto'];
+      return repo.updateRole(roleId, dto);
+    });
+
+// -----------------------
+// Delete Role provider
+// -----------------------
+final deleteRoleProvider = FutureProvider.family<void, String>((ref, roleId) async {
+  final repo = ref.read(rolesRepositoryProvider);
+  await repo.deleteRole(roleId);
 });

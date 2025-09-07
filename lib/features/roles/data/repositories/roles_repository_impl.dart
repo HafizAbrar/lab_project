@@ -16,8 +16,10 @@ class RolesRepositoryImpl implements RolesRepository {
   Future<RoleDto> createRole(CreateRoleDto dto) => _remoteSource.createRole(dto);
 
   @override
-  Future<RoleDto> updateRole(String roleId, UpdateRoleDto dto) =>
-      _remoteSource.updateRole(roleId, dto);
+  Future<RoleDto> updateRole(String roleId, UpdateRoleDto dto) {
+    return _remoteSource.updateRole(roleId, dto);
+  }
+
 
   @override
   Future<void> deleteRole(String roleId) => _remoteSource.deleteRole(roleId);

@@ -197,23 +197,23 @@ class AdminDashboardPage extends ConsumerWidget {
                                 child: Card(
                                   child: InkWell(
                                     onTap: () {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Settings coming soon!')),
-                                      );
+                                      context.go('/employees/manage');
                                     },
                                     child: const Padding(
                                       padding: EdgeInsets.all(16.0),
                                       child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Icon(Icons.settings, size: 32),
+                                          Icon(Icons.people, size: 32),
                                           SizedBox(height: 8),
-                                          Text('Settings'),
+                                          Text('Manage Employees'),
                                         ],
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
+
                             ],
                           ),
                         ],

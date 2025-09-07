@@ -7,7 +7,13 @@ part of 'update_role_dto.dart';
 // **************************************************************************
 
 UpdateRoleDto _$UpdateRoleDtoFromJson(Map<String, dynamic> json) =>
-    UpdateRoleDto(name: json['name'] as String?);
+    UpdateRoleDto(
+      name: json['name'] as String,
+      description: json['description'] as String,
+    );
 
 Map<String, dynamic> _$UpdateRoleDtoToJson(UpdateRoleDto instance) =>
-    <String, dynamic>{'name': instance.name};
+    <String, dynamic>{
+      'name': instance.name,
+      'description': instance.description,
+    };
