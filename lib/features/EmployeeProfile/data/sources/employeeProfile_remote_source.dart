@@ -10,13 +10,13 @@ class EmployeeProfilesRemoteSource {
   final Dio _dio;
   EmployeeProfilesRemoteSource(this._dio);
 
+  /// Get all users and filter employees
   Future<List<EmployeeDto>> getEmployees() async {
     final response = await _dio.get('/users');
 
     final data = response.data as Map<String, dynamic>;
     final usersJson = data['data'] as List<dynamic>? ?? [];
 
-    // filter users where role.name == "employee"
     final employees = usersJson.where((u) {
       final role = u['role'] as Map<String, dynamic>? ?? {};
       return role['name'] == 'employee';
@@ -30,15 +30,12 @@ class EmployeeProfilesRemoteSource {
       CreateEmployeeProfileDto dto, {
         File? file,
       }) async {
-    // Always create a new FormData
     final formData = FormData.fromMap({
       ...dto.toJson(),
       if (file != null)
         "file": await MultipartFile.fromFile(
           file.path,
-          filename: file.path
-              .split("/")
-              .last,
+          filename: file.path.split("/").last,
         ),
     });
 
@@ -50,7 +47,6 @@ class EmployeeProfilesRemoteSource {
 
     final responseJson = response.data as Map<String, dynamic>;
 
-// Use null-aware operator here
     final dataMap = responseJson['data'] != null
         ? responseJson['data'] as Map<String, dynamic>
         : <String, dynamic>{
@@ -67,9 +63,7 @@ class EmployeeProfilesRemoteSource {
     return EmployeeProfileDto.fromJson(dataMap);
   }
 
-
-
-    /// Get all employee profiles
+  /// Get all employee profiles
   Future<List<EmployeeProfileDto>> getEmployeeProfiles() async {
     final response = await _dio.get('/employee-profiles');
 
@@ -78,37 +72,50 @@ class EmployeeProfilesRemoteSource {
 
     return profiles.map((e) => EmployeeProfileDto.fromJson(e)).toList();
   }
-  // 🔹 Update Employee Profile
+
+  /// 🔹 Update only employee profile image
+  Future<EmployeeProfileDto> updateEmployeeProfileImage(
+      String profileId, File file) async {
+    final formData = FormData.fromMap({
+      "file": await MultipartFile.fromFile(
+        file.path,
+        filename: file.path.split('/').last,
+      ),
+    });
+
+    final response = await _dio.patch(
+      '/employee-profiles/$profileId/image',
+      data: formData,
+      options: Options(
+        headers: {"Content-Type": "multipart/form-data"},
+      ),
+    );
+
+    final data = response.data['data'] as Map<String, dynamic>;
+    return EmployeeProfileDto.fromJson(data);
+  }
+
+  /// 🔹 Update employee profile details (jobTitle, department, etc.)
   Future<EmployeeProfileDto> updateEmployeeProfile(
       String profileId,
-      UpdateEmployeeProfileDto dto, {
-        File? file,
-      }) async {
+      UpdateEmployeeProfileDto dto,
+      ) async {
     try {
-      final formData = FormData.fromMap({
-        ...dto.toJson(),
-        if (file != null)
-          "profileImage": await MultipartFile.fromFile(
-            file.path,
-            filename: file.path.split('/').last,
-          ),
-      });
-
       final response = await _dio.patch(
         '/employee-profiles/$profileId',
-        data: formData,
+        data: dto.toJson(),
         options: Options(
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: {"Content-Type": "application/json"},
         ),
       );
 
-      return EmployeeProfileDto.fromJson(response.data);
+      final data = response.data['data'] as Map<String, dynamic>;
+      return EmployeeProfileDto.fromJson(data);
     } catch (e) {
       rethrow;
     }
   }
+
   /// Delete employee profile by ID
   Future<void> deleteEmployeeProfile(String id) async {
     try {

@@ -21,10 +21,15 @@ abstract class EmployeeProfilesRepository {
   /// Delete employee profile
   Future<void> deleteEmployeeProfile(String id);
 
-  /// Update employee profile
+  /// Update employee profile (fields only, no image)
   Future<EmployeeProfileDto> updateEmployeeProfile(
       String profileId,
-      UpdateEmployeeProfileDto dto, {
-        File? file,
-      });
+      UpdateEmployeeProfileDto dto,
+      );
+
+  /// Update only profile image
+  Future<EmployeeProfileDto> updateEmployeeProfileImage(
+      String profileId,
+      File file,
+      );
 }

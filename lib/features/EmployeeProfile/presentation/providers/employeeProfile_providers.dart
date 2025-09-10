@@ -64,18 +64,30 @@ final createEmployeeProfileProvider = FutureProvider.family<
   final repo = ref.read(employeeRepositoryProvider);
   return repo.createEmployeeProfile(params.dto, file: params.file);
 });
-// 🔹 Update Employee Profile Provider
-final updateEmployeeProfileProvider = FutureProvider.family
-<EmployeeProfileDto, Map<String, dynamic>>((ref, params) async {
+
+/// 🔹 Update Employee Profile (fields only, no image)
+final updateEmployeeProfileProvider = FutureProvider.family<
+    EmployeeProfileDto, Map<String, dynamic>>((ref, params) async {
   final repo = ref.read(employeeRepositoryProvider);
   final profileId = params['profileId'] as String;
   final dto = params['dto'] as UpdateEmployeeProfileDto;
-  final file = params['file'] as File?;
 
-  return repo.updateEmployeeProfile(profileId, dto, file: file);
+  return repo.updateEmployeeProfile(profileId, dto);
 });
-/// delete employee profile
-final deleteEmployeeProfileProvider = FutureProvider.family<void, String>((ref, id) async {
+
+/// 🔹 Update Employee Profile Image (separate route)
+final updateEmployeeProfileImageProvider = FutureProvider.family<
+    EmployeeProfileDto, Map<String, dynamic>>((ref, params) async {
   final repo = ref.read(employeeRepositoryProvider);
-  await repo.deleteEmployeeProfile(id); // implement this in repo
+  final profileId = params['profileId'] as String;
+  final file = params['file'] as File;
+
+  return repo.updateEmployeeProfileImage(profileId, file);
+});
+
+/// 🗑 Delete employee profile
+final deleteEmployeeProfileProvider =
+FutureProvider.family<void, String>((ref, id) async {
+  final repo = ref.read(employeeRepositoryProvider);
+  await repo.deleteEmployeeProfile(id);
 });

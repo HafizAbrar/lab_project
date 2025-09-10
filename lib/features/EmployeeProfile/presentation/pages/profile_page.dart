@@ -131,8 +131,7 @@ class _EmployeeProfileScreenState extends ConsumerState<EmployeeProfileScreen> {
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (_pickedImage != null &&
-        await _pickedImage!.length() > 2 * 1024 * 1024) {
+    if (_pickedImage != null && await _pickedImage!.length() > 2 * 1024 * 1024) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Image must be smaller than 2MB")),
       );
@@ -141,19 +140,31 @@ class _EmployeeProfileScreenState extends ConsumerState<EmployeeProfileScreen> {
 
     try {
       if (widget.isEditing) {
-        // 🔹 UPDATE
-        final dto = UpdateEmployeeProfileDto(
-          jobTitle: _jobTitleController.text,
-          department: _departmentController.text,
-          hireDate: _hireDateController.text,
-          status: _selectedStatus ?? "active",
-        );
+        if (_pickedImage != null &&
+            (_jobTitleController.text == widget.profile?.jobTitle) &&
+            (_departmentController.text == widget.profile?.department) &&
+            (_hireDateController.text == widget.profile?.hireDate) &&
+            (_selectedStatus == widget.profile?.status)) {
+          // 🔹 Only image changed → use separate image update API
+          await ref.read(updateEmployeeProfileImageProvider({
+            "profileId": widget.profile!.id,
+            "file": _pickedImage!,
+          }).future);
+        } else {
+          // 🔹 Update fields (and optionally file if your main API supports it)
+          final dto = UpdateEmployeeProfileDto(
+            jobTitle: _jobTitleController.text,
+            department: _departmentController.text,
+            hireDate: _hireDateController.text,
+            status: _selectedStatus ?? "active",
+          );
 
-        await ref.read(updateEmployeeProfileProvider({
-          "profileId": widget.profile!.id,
-          "dto": dto,
-          "file": _pickedImage, // 👈 only pass file here
-        }).future);
+          await ref.read(updateEmployeeProfileProvider({
+            "profileId": widget.profile!.id,
+            "dto": dto,
+            "file": _pickedImage, // optional
+          }).future);
+        }
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

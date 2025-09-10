@@ -16,7 +16,9 @@ class EmployeeProfilesRepositoryImpl implements EmployeeProfilesRepository {
 
   @override
   Future<EmployeeProfileDto> createEmployeeProfile(
-      CreateEmployeeProfileDto dto, {File? file}) {
+      CreateEmployeeProfileDto dto, {
+        File? file,
+      }) {
     return _remoteSource.createEmployeeProfile(dto, file: file);
   }
 
@@ -28,13 +30,21 @@ class EmployeeProfilesRepositoryImpl implements EmployeeProfilesRepository {
   Future<void> deleteEmployeeProfile(String id) =>
       _remoteSource.deleteEmployeeProfile(id);
 
-  // 🔹 Fixed update: returns updated profile + supports file
+  /// 🔹 Update employee profile details (without image)
   @override
   Future<EmployeeProfileDto> updateEmployeeProfile(
       String profileId,
-      UpdateEmployeeProfileDto dto, {
-        File? file,
-      }) {
-    return _remoteSource.updateEmployeeProfile(profileId, dto, file: file);
+      UpdateEmployeeProfileDto dto,
+      ) {
+    return _remoteSource.updateEmployeeProfile(profileId, dto);
+  }
+
+  /// 🔹 Update only profile image
+  @override
+  Future<EmployeeProfileDto> updateEmployeeProfileImage(
+      String profileId,
+      File file,
+      ) {
+    return _remoteSource.updateEmployeeProfileImage(profileId, file);
   }
 }
