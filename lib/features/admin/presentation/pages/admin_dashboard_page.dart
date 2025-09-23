@@ -57,12 +57,88 @@ class AdminDashboardPage extends ConsumerWidget {
             ),
           ],
         ),
+
+        // 🔹 BURGER MENU ADDED
+        drawer: Drawer(
+          child: authState.when(
+            data: (user) {
+              return Column(
+                children: [
+                  UserAccountsDrawerHeader(
+                    accountName: Text(user?.name ?? "Admin"),
+                    accountEmail: Text(user?.email ?? ""),
+                    currentAccountPicture: CircleAvatar(
+                      child: Icon(Icons.admin_panel_settings, size: 32),
+                    ),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.people),
+                    title: const Text("Manage Users"),
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.go('/users');
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.security),
+                    title: const Text("Manage Roles"),
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.go('/roles');
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.featured_play_list_outlined),
+                    title: const Text("Features"),
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.go('/users/available-features');
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.badge),
+                    title: const Text("Manage Employees"),
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.go('/employees/manage');
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.pan_tool),
+                    title: const Text("Manage Skills"),
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.go('/skills');
+                    },
+                  ),
+                  const Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.exit_to_app),
+                    title: const Text("Exit App"),
+                    onTap: () async {
+                      Navigator.pop(context);
+                      bool shouldExit = await _showExitDialog(context);
+                      if (shouldExit) {
+                        SystemNavigator.pop();
+                      }
+                    },
+                  ),
+                ],
+              );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stackTrace) =>
+                Center(child: Text("Error: $error")),
+          ),
+        ),
+
         body: authState.when(
           data: (user) {
             if (user == null) {
               return const Center(child: Text('Not logged in'));
             }
 
+            // ✅ KEEPING YOUR EXISTING BODY (Quick Actions + Cards)
             return SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
               child: Column(
@@ -213,7 +289,6 @@ class AdminDashboardPage extends ConsumerWidget {
                                   ),
                                 ),
                               ),
-
                             ],
                           ),
                         ],

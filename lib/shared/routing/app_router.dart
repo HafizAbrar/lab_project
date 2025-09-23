@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:async';
 import '../../features/EmployeeProfile/data/models/employee_profile_dto.dart'
 as employee_profile;
+import '../../features/skills/presentation/pages/skills_list_page.dart';
 import '../../features/users/data/models/user_dto.dart' as users;
 
 //port '../../features/EmployeeProfile/data/models/employee_profile_dto.dart';
@@ -105,6 +106,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             profile: profile, // ✅ Correct: send DTO object
           );
         },
+      ),
+      GoRoute(
+        path: '/skills',
+        builder: (context, state) => const SkillsScreen(),
       ),
     ],
     redirect: (ctx, state) {
