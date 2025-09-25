@@ -48,8 +48,7 @@ class RolesListPage extends ConsumerWidget {
               itemBuilder: (context, index) {
                 final role = roles[index];
                 return Card(
-                  margin:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -61,49 +60,87 @@ class RolesListPage extends ConsumerWidget {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: Colors.white, // ✅ visible on white card
                       ),
                     ),
                     subtitle: Text(
                       role.description,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey[200],
+                        color: Colors.grey[300],
                       ),
                     ),
-                    trailing: PopupMenuButton(
+                    trailing: PopupMenuButton<String>( // ✅ FIXED
                       itemBuilder: (context) => [
-                        const PopupMenuItem(
+                        const PopupMenuItem<String>(
+                          value: 'viewPermissions',
+                          child: Row(
+                            children: [
+                              Icon(Icons.visibility),
+                              SizedBox(width: 8),
+                              Text('View Permissions'),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'updatePermissions',
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit_attributes),
+                              SizedBox(width: 8),
+                              Text('Update Permissions'),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuDivider(),
+                        const PopupMenuItem<String>(
                           value: 'edit',
                           child: Row(
                             children: [
                               Icon(Icons.edit),
                               SizedBox(width: 8),
-                              Text('Edit'),
+                              Text('Edit Role'),
                             ],
                           ),
                         ),
-                        const PopupMenuItem(
+                        const PopupMenuItem<String>(
                           value: 'delete',
                           child: Row(
                             children: [
                               Icon(Icons.delete, color: Colors.red),
                               SizedBox(width: 8),
-                              Text('Delete',
-                                  style: TextStyle(color: Colors.red)),
+                              Text(
+                                'Delete',
+                                style: TextStyle(color: Colors.red),
+                              ),
                             ],
                           ),
                         ),
                       ],
                       onSelected: (value) async {
                         switch (value) {
+                          case 'viewPermissions':
+                            context.push(
+                              '/roles/permissions/view',
+                              extra: role.id, // ✅ pass roleId
+                            );
+                            break;
+                          case 'updatePermissions':
+                            final updated = await context.pushNamed<bool>(
+                              'updateRolePermissions',
+                              pathParameters: {'roleId': role.id}, // ✅ FIXED
+                            );
+                            if (updated == true) {
+                              ref.invalidate(rolesListProvider);
+                            }
+                            break;
                           case 'edit':
                             final updatedRole = await context.push<RoleDto>(
                               '/roles/edit',
                               extra: role,
                             );
                             if (updatedRole != null) {
-                              ref.invalidate(rolesListProvider); // refresh list
+                              ref.invalidate(rolesListProvider);
                             }
                             break;
                           case 'delete':

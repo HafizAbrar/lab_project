@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:async';
 import '../../features/EmployeeProfile/data/models/employee_profile_dto.dart'
 as employee_profile;
+import '../../features/roles/presentation/pages/update_permission_page.dart';
+import '../../features/roles/presentation/pages/view_permissions_page.dart';
 import '../../features/skills/presentation/pages/skills_list_page.dart';
 import '../../features/users/data/models/user_dto.dart' as users;
 
@@ -53,7 +55,21 @@ final routerProvider = Provider<GoRouter>((ref) {
           return CreateRoleScreen(existingRole: role);
         },
       ),
-
+      GoRoute(
+        path: '/roles/permissions/view',
+        builder: (context, state) {
+          final roleId = state.extra as String;
+          return ViewPermissionsPage(roleId: roleId);
+        },
+      ),
+      GoRoute(
+        path: '/roles/:roleId/update-permissions',
+        name: 'updateRolePermissions',
+        builder: (context, state) {
+          final roleId = state.pathParameters['roleId']!;
+          return UpdatePermissionsPage(roleId: roleId);
+        },
+      ),
       GoRoute(path: '/users', builder: (_, __) => const UsersListPage()),
       GoRoute(path: '/users/create', builder: (_, __) => const UserFormPage()),
       GoRoute(
