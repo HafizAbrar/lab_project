@@ -26,6 +26,8 @@ abstract class EmployeeProfilesRepository {
       String profileId,
       UpdateEmployeeProfileDto dto,
       );
+  /// Get one employee profile by ID
+  Future<EmployeeProfileDto> getEmployeeProfile(String id);
 
   /// Update only profile image
   Future<EmployeeProfileDto> updateEmployeeProfileImage(

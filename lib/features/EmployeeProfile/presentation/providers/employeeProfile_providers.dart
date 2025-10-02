@@ -84,6 +84,12 @@ final updateEmployeeProfileImageProvider = FutureProvider.family<
 
   return repo.updateEmployeeProfileImage(profileId, file);
 });
+/// 🔹 Get a single employee profile by ID
+final employeeProfileProvider =
+FutureProvider.family<EmployeeProfileDto, String>((ref, id) async {
+  final repo = ref.read(employeeRepositoryProvider);
+  return repo.getEmployeeProfile(id);
+});
 
 /// 🗑 Delete employee profile
 final deleteEmployeeProfileProvider =

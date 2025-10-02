@@ -89,7 +89,7 @@ class EmployeesListPage extends ConsumerWidget {
                         }
                       },
                     ),
-                    onTap: () => context.push('/employees/${employee.id}'),
+                    onTap: () {},
                   ),
                 );
               },

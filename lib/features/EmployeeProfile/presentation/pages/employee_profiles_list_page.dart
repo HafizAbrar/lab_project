@@ -123,9 +123,9 @@ class EmployeeProfilesListScreen extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    onTap: () {
-                      context.push('/employees/profiles/${profile.id}');
-                    },
+                      onTap: () {
+                        context.push('/employees/profiles/${profile.id}');
+                      }
                   ),
                 );
               },

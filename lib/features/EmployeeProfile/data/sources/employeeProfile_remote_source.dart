@@ -115,6 +115,15 @@ class EmployeeProfilesRemoteSource {
       rethrow;
     }
   }
+  /// Get a single employee profile by ID
+  Future<EmployeeProfileDto> getEmployeeProfile(String id) async {
+    final response = await _dio.get('/employee-profiles/$id');
+
+    final json = response.data as Map<String, dynamic>;
+    final data = json['data'] as Map<String, dynamic>;
+
+    return EmployeeProfileDto.fromJson(data);
+  }
 
   /// Delete employee profile by ID
   Future<void> deleteEmployeeProfile(String id) async {

@@ -38,6 +38,11 @@ class EmployeeProfilesRepositoryImpl implements EmployeeProfilesRepository {
       ) {
     return _remoteSource.updateEmployeeProfile(profileId, dto);
   }
+  /// Get one employee profile by ID
+  @override
+  Future<EmployeeProfileDto> getEmployeeProfile(String id) {
+    return _remoteSource.getEmployeeProfile(id);
+  }
 
   /// 🔹 Update only profile image
   @override

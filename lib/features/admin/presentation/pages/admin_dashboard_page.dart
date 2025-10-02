@@ -104,6 +104,14 @@ class AdminDashboardPage extends ConsumerWidget {
                     },
                   ),
                   ListTile(
+                    leading: const Icon(Icons.badge),
+                    title: const Text("Manage Clients"),
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.go('/clients/manage');
+                    },
+                  ),
+                  ListTile(
                     leading: const Icon(Icons.pan_tool),
                     title: const Text("Manage Skills"),
                     onTap: () {

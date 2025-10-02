@@ -2,32 +2,51 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:async';
+
+// Employee
 import '../../features/EmployeeProfile/data/models/employee_profile_dto.dart'
 as employee_profile;
-import '../../features/roles/presentation/pages/update_permission_page.dart';
-import '../../features/roles/presentation/pages/view_permissions_page.dart';
-import '../../features/skills/presentation/pages/skills_list_page.dart';
-import '../../features/users/data/models/user_dto.dart' as users;
-
-//port '../../features/EmployeeProfile/data/models/employee_profile_dto.dart';
-import '../../features/EmployeeProfile/presentation/pages/employee_profiles_page.dart';
+import '../../features/EmployeeProfile/presentation/pages/profile_page.dart';
+import '../../features/EmployeeProfile/presentation/pages/employee_profiles_list_page.dart';
 import '../../features/EmployeeProfile/presentation/pages/employees_list_page.dart';
 import '../../features/EmployeeProfile/presentation/pages/manage_employees_page.dart';
-import '../../features/EmployeeProfile/presentation/pages/profile_page.dart';
-import '../../features/auth/presentation/providers/auth_providers.dart';
-import '../../features/auth/presentation/pages/login_page.dart';
-import '../../features/auth/presentation/pages/register_page.dart';
-import '../../features/auth/presentation/pages/splash_gate.dart';
-import '../../features/admin/presentation/pages/admin_dashboard_page.dart';
+import '../../features/EmployeeProfile/presentation/pages/create&update_profile_page.dart';
+
+// Roles
+import '../../features/clients/presentation/pages/client_profile_page.dart';
+import '../../features/clients/presentation/pages/clients-list_page.dart';
+import '../../features/clients/presentation/pages/create&update_profile_page.dart';
+import '../../features/clients/presentation/pages/manage_clients_page.dart';
+import '../../features/clients/presentation/pages/profiles_list_page.dart';
+import '../../features/roles/presentation/pages/update_permission_page.dart';
+import '../../features/roles/presentation/pages/view_permissions_page.dart';
 import '../../features/roles/data/models/role_dto.dart';
 import '../../features/roles/presentation/pages/create_role_page.dart';
 import '../../features/roles/presentation/pages/roles_list_page.dart';
-//port '../../features/users/data/models/user_dto.dart';
+
+// Skills
+import '../../features/skills/presentation/pages/skills_list_page.dart';
+
+// Users
+import '../../features/users/data/models/user_dto.dart' as users;
 import '../../features/users/presentation/pages/features_screen.dart';
 import '../../features/users/presentation/pages/userPermissions_page.dart';
 import '../../features/users/presentation/pages/users_list_page.dart';
 import '../../features/users/presentation/pages/createUser_page.dart';
 import '../../features/users/presentation/pages/user_edit_page.dart';
+
+// Auth
+import '../../features/auth/presentation/providers/auth_providers.dart';
+import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/auth/presentation/pages/register_page.dart';
+import '../../features/auth/presentation/pages/splash_gate.dart';
+
+// Admin
+import '../../features/admin/presentation/pages/admin_dashboard_page.dart';
+
+// ✅ Clients
+import '../../features/clients/data/models/client_profile_dto.dart';
+
 
 final routerProvider = Provider<GoRouter>((ref) {
   final auth = ref.watch(authStateProvider);
@@ -35,7 +54,6 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/splash',
     refreshListenable: GoRouterRefreshStream(
-      // ✅ listen directly to auth state stream
       ref.watch(authStateProvider.notifier).stream.distinct(),
     ),
     routes: [
@@ -43,11 +61,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/login', builder: (_, __) => const LoginPage()),
       GoRoute(path: '/register', builder: (_, __) => const RegisterPage()),
       GoRoute(path: '/admin', builder: (_, __) => const AdminDashboardPage()),
+
+      // ✅ Roles
       GoRoute(path: '/roles', builder: (_, __) => const RolesListPage()),
-      GoRoute(
-        path: '/roles/create',
-        builder: (context, state) => const CreateRoleScreen(),
-      ),
+      GoRoute(path: '/roles/create', builder: (_, __) => const CreateRoleScreen()),
       GoRoute(
         path: '/roles/edit',
         builder: (context, state) {
@@ -70,6 +87,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           return UpdatePermissionsPage(roleId: roleId);
         },
       ),
+
+      // ✅ Users
       GoRoute(path: '/users', builder: (_, __) => const UsersListPage()),
       GoRoute(path: '/users/create', builder: (_, __) => const UserFormPage()),
       GoRoute(
@@ -84,24 +103,24 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/users/:id/permissions',
         builder: (context, state) {
           final extras = state.extra as Map<String, dynamic>;
-          final user = extras['user'] as users.UserDto; // ✅ CORRECT
+          final user = extras['user'] as users.UserDto;
           final mode = extras['mode'] as PermissionMode;
           return UserPermissionsScreen(userId: user.id, mode: mode);
         },
       ),
-      GoRoute(
-        path: '/users/available-features',
-        builder: (context, state) => const FeaturesScreen(),
-      ),
+      GoRoute(path: '/users/available-features', builder: (_, __) => const FeaturesScreen()),
+
       // ✅ Employees
       GoRoute(path: '/employees', builder: (_, __) => const EmployeesListPage()),
       GoRoute(path: '/employees/manage', builder: (_, __) => const ManageEmployeesScreen()),
-      // ✅get Employee Profiles
+      GoRoute(path: '/employees/profiles', builder: (_, __) => const EmployeeProfilesListScreen()),
       GoRoute(
-        path: '/employees/profiles',
-        builder: (_, __) => const EmployeeProfilesListScreen(),
+        path: '/employees/profiles/:id',
+        builder: (context, state) {
+          final profileId = state.pathParameters['id']!;
+          return EmployeeProfileDetailScreen(profileId: profileId);
+        },
       ),
-      // ✅ create Employee Profile
       GoRoute(
         path: '/employees/:employeeId/create-profile',
         builder: (context, state) {
@@ -109,25 +128,55 @@ final routerProvider = Provider<GoRouter>((ref) {
           return EmployeeProfileScreen(employeeId: employeeId);
         },
       ),
-      // ✅ Update Employee Profile
       GoRoute(
         path: '/employees/:employeeId/profiles/:profileId/edit',
         builder: (context, state) {
           final employeeId = state.pathParameters['employeeId']!;
-          /// ✅ Expect EmployeeProfileDto from extra
           final profile = state.extra as employee_profile.EmployeeProfileDto;
+          return EmployeeProfileScreen(employeeId: employeeId, profile: profile);
+        },
+      ),
 
-          return EmployeeProfileScreen(
-            employeeId: employeeId,
-            profile: profile, // ✅ Correct: send DTO object
+      // ✅ Skills
+      GoRoute(path: '/skills', builder: (_, __) => const SkillsScreen()),
+
+      // ✅ Clients
+      GoRoute(path: '/clients/manage', builder: (_, __) => const ManageClientsScreen()),
+      GoRoute(path: '/clients', builder: (_, __) => const ClientsListPage()),
+      GoRoute(path: '/clients/profiles', builder: (_, __) => const ClientProfilesListScreen()),
+      GoRoute(
+        path: '/clients/:clientId/create-profile',
+        builder: (context, state) {
+          final clientId = state.pathParameters['clientId']!;
+          final extra = state.extra as Map<String, dynamic>?;
+
+          final name = extra?['name'] as String? ?? "";
+          final email = extra?['email'] as String? ?? "";
+
+          return ClientProfileScreen(
+            clientId: clientId,
+            clientName: name,
+            clientEmail: email,
           );
         },
       ),
       GoRoute(
-        path: '/skills',
-        builder: (context, state) => const SkillsScreen(),
+        path: '/clients/profiles/:profileId/edit',
+        builder: (context, state) {
+          final profile = state.extra as ClientProfileDto;
+          return ClientProfileScreen(clientId: profile.id, profile: profile);
+        },
+      ),
+      GoRoute(
+        path: '/clients/profiles/:profileId',
+        builder: (context, state) {
+          final profileId = state.pathParameters['profileId']!;
+          return ClientProfileDetailScreen(profileId: profileId);
+        },
       ),
     ],
+
+    // ✅ Redirect Logic
     redirect: (ctx, state) {
       final user = auth.valueOrNull;
 
