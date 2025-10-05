@@ -90,7 +90,18 @@ class EmployeeProfilesListScreen extends ConsumerWidget {
                     ),
                     trailing: PopupMenuButton<String>(
                       onSelected: (value) {
-                        if (value == 'update') {
+                        if (value == 'skillsList') {
+                          context.push(
+                            '/employee-skills',
+                            extra: {
+                              'employeeId':profile.userId,
+                              'profileId': profile.id,
+                              'profileImageUrl': profile.profileImage,
+                            },
+                          );
+
+
+                        }else if (value == 'update') {
                           context.push(
                             '/employees/${profile.user?.id}/profiles/${profile.id}/edit',
                             extra: profile, // pass DTO to edit screen
@@ -101,6 +112,16 @@ class EmployeeProfilesListScreen extends ConsumerWidget {
                         }
                       },
                       itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: 'skillsList',
+                          child: Row(
+                            children: [
+                              Icon(Icons.list_rounded, color: Colors.blue),
+                              SizedBox(width: 8),
+                              Text('Show Skills'),
+                            ],
+                          ),
+                        ),
                         const PopupMenuItem(
                           value: 'update',
                           child: Row(

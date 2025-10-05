@@ -262,14 +262,14 @@ class AdminDashboardPage extends ConsumerWidget {
                               Expanded(
                                 child: Card(
                                   child: InkWell(
-                                    onTap: () => context.push('/users/available-features'),
+                                    onTap: () => context.push('/clients/profiles'),
                                     child: const Padding(
                                       padding: EdgeInsets.all(16.0),
                                       child: Column(
                                         children: [
-                                          Icon(Icons.featured_play_list_outlined, size: 32),
+                                          Icon(Icons.people, size: 32),
                                           SizedBox(height: 8),
-                                          Text('Features'),
+                                          Text('Clients'),
                                         ],
                                       ),
                                     ),
@@ -281,7 +281,7 @@ class AdminDashboardPage extends ConsumerWidget {
                                 child: Card(
                                   child: InkWell(
                                     onTap: () {
-                                      context.go('/employees/manage');
+                                      context.go('/employees/profiles');
                                     },
                                     child: const Padding(
                                       padding: EdgeInsets.all(16.0),
@@ -290,7 +290,7 @@ class AdminDashboardPage extends ConsumerWidget {
                                         children: [
                                           Icon(Icons.people, size: 32),
                                           SizedBox(height: 8),
-                                          Text('Manage Employees'),
+                                          Text('Employees'),
                                         ],
                                       ),
                                     ),

@@ -18,6 +18,8 @@ import '../../features/clients/presentation/pages/clients-list_page.dart';
 import '../../features/clients/presentation/pages/create&update_profile_page.dart';
 import '../../features/clients/presentation/pages/manage_clients_page.dart';
 import '../../features/clients/presentation/pages/profiles_list_page.dart';
+import '../../features/employeeSkills/presentation/pages/create_employee_skill_screen.dart';
+import '../../features/employeeSkills/presentation/pages/employee_skills_list_screen.dart';
 import '../../features/roles/presentation/pages/update_permission_page.dart';
 import '../../features/roles/presentation/pages/view_permissions_page.dart';
 import '../../features/roles/data/models/role_dto.dart';
@@ -134,6 +136,49 @@ final routerProvider = Provider<GoRouter>((ref) {
           final employeeId = state.pathParameters['employeeId']!;
           final profile = state.extra as employee_profile.EmployeeProfileDto;
           return EmployeeProfileScreen(employeeId: employeeId, profile: profile);
+        },
+      ),
+      //create employee skill
+      GoRoute(
+        path: '/employee-skills/:employeeId/create',
+        name: 'createEmployeeSkill',
+        builder: (context, state) {
+          final employeeId = state.pathParameters['employeeId']!;
+          return CreateEmployeeSkillScreen(employeeId: employeeId);
+        },
+      ),
+      //get skill of an employee
+      GoRoute(
+        path: '/employee-skills',
+        builder: (context, state) {
+          final extra = state.extra as Map?;
+          final employeeId = extra?['employeeId'] ?? '';
+          final profileId = extra?['profileId'] ?? '';
+          final profileImageUrl = extra?['profileImageUrl'] ?? '';
+
+          return EmployeeSkillsScreen(
+            employeeId: employeeId,
+            profileId: profileId,
+            profileImageUrl: profileImageUrl,
+          );
+        },
+      ),
+      //update employee skill
+      GoRoute(
+        path: '/employee-skills/:employeeId/update/:skillId',
+        name: 'updateEmployeeSkill',
+        builder: (context, state) {
+          final employeeId = state.pathParameters['employeeId']!;
+          final skillId = state.pathParameters['skillId']!;
+          final extra = state.extra as Map<String, dynamic>?; // from navigation
+          final existingSkill = extra?['skill']; // EmployeeSkillDto or similar
+
+          return CreateEmployeeSkillScreen(
+            employeeId: employeeId,
+            skillId: skillId,
+            existingSkill: existingSkill, // prefill fields
+            isEditing: true,
+          );
         },
       ),
 
