@@ -119,6 +119,14 @@ class AdminDashboardPage extends ConsumerWidget {
                       context.go('/skills');
                     },
                   ),
+                  ListTile(
+                    leading: const Icon(Icons.category_outlined),
+                    title: const Text("Manage Categories"),
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.go('/categories');
+                    },
+                  ),
                   const Divider(),
                   ListTile(
                     leading: const Icon(Icons.exit_to_app),

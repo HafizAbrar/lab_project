@@ -13,6 +13,8 @@ import '../../features/EmployeeProfile/presentation/pages/manage_employees_page.
 import '../../features/EmployeeProfile/presentation/pages/create&update_profile_page.dart';
 
 // Roles
+import '../../features/categories/presentation/pages/categories_list_screen.dart';
+import '../../features/categories/presentation/pages/create_category_screen.dart';
 import '../../features/clients/presentation/pages/client_profile_page.dart';
 import '../../features/clients/presentation/pages/clients-list_page.dart';
 import '../../features/clients/presentation/pages/create&update_profile_page.dart';
@@ -218,6 +220,16 @@ final routerProvider = Provider<GoRouter>((ref) {
           final profileId = state.pathParameters['profileId']!;
           return ClientProfileDetailScreen(profileId: profileId);
         },
+      ),
+      GoRoute(
+        path: '/categories',
+        name: 'categories',
+        builder: (context, state) => const CategoriesListScreen(),
+      ),
+      GoRoute(
+        path: '/categories/create',
+        name: 'createCategory',
+        builder: (context, state) => const CreateOrUpdateCategoryScreen(),
       ),
     ],
 
