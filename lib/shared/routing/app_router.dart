@@ -22,6 +22,8 @@ import '../../features/clients/presentation/pages/manage_clients_page.dart';
 import '../../features/clients/presentation/pages/profiles_list_page.dart';
 import '../../features/employeeSkills/presentation/pages/create_employee_skill_screen.dart';
 import '../../features/employeeSkills/presentation/pages/employee_skills_list_screen.dart';
+import '../../features/projects/presentation/pages/all_projects_screen.dart';
+import '../../features/projects/presentation/pages/create_new_project_screen.dart';
 import '../../features/roles/presentation/pages/update_permission_page.dart';
 import '../../features/roles/presentation/pages/view_permissions_page.dart';
 import '../../features/roles/data/models/role_dto.dart';
@@ -183,7 +185,15 @@ final routerProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
-
+      // projects
+      GoRoute(
+        path: '/projects',
+        builder: (context, state) => const AllProjectsScreen(),
+      ),
+      GoRoute(
+        path: '/projects/create',
+        builder: (context, state) => const CreateNewProjectScreen(),
+      ),
       // ✅ Skills
       GoRoute(path: '/skills', builder: (_, __) => const SkillsScreen()),
 

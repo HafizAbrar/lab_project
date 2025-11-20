@@ -4,7 +4,7 @@ class Env {
   static const String env = String.fromEnvironment('ENV', defaultValue: 'dev');
   static const String apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://adminapi.labverse.org',
+    defaultValue: 'https://api.labverse.org/',
   );
   static const String sentryDsn = String.fromEnvironment(
     'SENTRY_DSN',

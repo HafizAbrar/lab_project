@@ -62,12 +62,13 @@ class AdminDashboardPage extends ConsumerWidget {
         drawer: Drawer(
           child: authState.when(
             data: (user) {
-              return Column(
+              return ListView(
+                padding: EdgeInsets.zero, // removes default top padding
                 children: [
                   UserAccountsDrawerHeader(
                     accountName: Text(user?.name ?? "Admin"),
                     accountEmail: Text(user?.email ?? ""),
-                    currentAccountPicture: CircleAvatar(
+                    currentAccountPicture: const CircleAvatar(
                       child: Icon(Icons.admin_panel_settings, size: 32),
                     ),
                   ),
@@ -120,6 +121,14 @@ class AdminDashboardPage extends ConsumerWidget {
                     },
                   ),
                   ListTile(
+                    leading: const Icon(Icons.currency_exchange_rounded),
+                    title: const Text("Projects"),
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.go('/projects');
+                    },
+                  ),
+                  ListTile(
                     leading: const Icon(Icons.category_outlined),
                     title: const Text("Manage Categories"),
                     onTap: () {
@@ -143,10 +152,10 @@ class AdminDashboardPage extends ConsumerWidget {
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stackTrace) =>
-                Center(child: Text("Error: $error")),
+            error: (error, stackTrace) => Center(child: Text("Error: $error")),
           ),
         ),
+
 
         body: authState.when(
           data: (user) {
