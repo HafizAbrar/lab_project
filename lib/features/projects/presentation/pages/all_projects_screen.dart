@@ -15,18 +15,18 @@ class AllProjectsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('All Projects'),
         leading: IconButton(
-            onPressed: ()
-            {
-              context.go('/admin');
-            },
-            icon:Icon(Icons.arrow_back_ios)),
+          onPressed: () => context.go('/admin'),
+          icon: const Icon(Icons.arrow_back_ios),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () async {
-              final result = await context.push('/projects/create');
-              if (result == true) {
-                // refresh project list provider after returning
+              final created = await context.push(
+                '/projects/create',
+                extra: null, // optional, can omit
+              );
+              if (created == true) {
                 ref.refresh(projectsProvider);
               }
             },
@@ -56,6 +56,7 @@ class AllProjectsScreen extends ConsumerWidget {
 
 class ProjectCard extends ConsumerWidget {
   final ProjectDto project;
+
   const ProjectCard({super.key, required this.project});
 
   @override
@@ -65,25 +66,35 @@ class ProjectCard extends ConsumerWidget {
       margin: const EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
+        onTap: () {
+          context.push('/project-details', extra: project);
+        },
         contentPadding: const EdgeInsets.all(16),
         title: Text(
-          project.name ?? 'Untitled Project',
+          project.name,
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 8.0),
           child: Text(
-            project.description ?? 'No description provided.',
+            project.description,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
         ),
         trailing: PopupMenuButton<String>(
-          onSelected: (value) {
+          onSelected: (value) async {
             if (value == 'edit') {
-              // Navigate to the project editing screen
+              final updated = await context.push(
+                '/projects/create',
+                extra: project, // <-- sending project object
+              );
+
+              if (updated == true) {
+                ref.refresh(projectsProvider);
+              }
             } else if (value == 'delete') {
-               ref.read(projectsProvider.notifier).deleteProject(project.id!);
+              ref.read(projectsProvider.notifier).deleteProject(project.id);
             }
           },
           itemBuilder: (context) => [

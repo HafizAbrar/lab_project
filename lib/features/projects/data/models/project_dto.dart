@@ -1,49 +1,53 @@
-// lib/features/projects/data/models/project_dto.dart
-
 class ProjectDto {
   final String id;
   final String name;
   final String description;
   final String startDate;
-  final String? endDate;
-  final String? status;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final String endDate;
+  final String status;
+  final double budget;
+  final List<String> images;
+  final String? clientId;
 
   ProjectDto({
     required this.id,
     required this.name,
     required this.description,
     required this.startDate,
-    this.endDate,
-    this.status,
-    required this.createdAt,
-    required this.updatedAt,
+    required this.endDate,
+    required this.status,
+    required this.budget,
+    required this.images,
+    this.clientId,
   });
+
+  /// Safely parse budget from int, double, or string
+  static double _parseBudget(dynamic value) {
+    if (value == null) return 0.0;
+
+    if (value is int) return value.toDouble();
+    if (value is double) return value;
+    if (value is String) {
+      return double.tryParse(value) ?? 0.0;
+    }
+
+    return 0.0; // fallback
+  }
 
   factory ProjectDto.fromJson(Map<String, dynamic> json) {
     return ProjectDto(
-      id: json['id'].toString(),
-      name: json['name'] ?? '',
+      id: json['id'] ?? '',
+      name: json['name'] ?? 'Untitled Project',
       description: json['description'] ?? '',
       startDate: json['startDate'] ?? '',
-      endDate: json['endDate'],
-      status: json['status'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
+      endDate: json['endDate'] ?? '',
+      status: json['status'] ?? '',
+      budget: _parseBudget(json['budget']),
+      images: (json['images'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList() ??
+          [],
+      clientId: json['clientId'],
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'description': description,
-      'startDate': startDate,
-      if (endDate != null) 'endDate': endDate,
-      if (status != null) 'status': status,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
-    };
   }
 }

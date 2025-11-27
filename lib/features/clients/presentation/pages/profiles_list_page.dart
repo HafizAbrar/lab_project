@@ -77,11 +77,11 @@ class ClientProfilesListScreen extends ConsumerWidget {
                       onSelected: (value) {
                         if (value == 'update') {
                           context.push(
-                            '/clients/profiles/${profile.id}/edit',
+                            '/clients/profiles/${profile.user_id}/edit',
                             extra: profile, // pass DTO to edit screen
                           );
                         } else if (value == 'delete') {
-                          _showDeleteDialog(context, ref, profile.id);
+                          _showDeleteDialog(context, ref, profile.user_id);
                         }
                       },
                       itemBuilder: (context) => [
@@ -108,7 +108,7 @@ class ClientProfilesListScreen extends ConsumerWidget {
                       ],
                     ),
                     onTap: () {
-                      context.push('/clients/profiles/${profile.id}');
+                      context.push('/clients/profiles/${profile.user_id}');
                     },
                   ),
                 );

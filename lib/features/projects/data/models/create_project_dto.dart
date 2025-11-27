@@ -1,4 +1,4 @@
-// create_project_dto.dart
+// lib/features/projects/data/models/create_project_dto.dart
 import 'dart:convert';
 import 'dart:io';
 
@@ -14,7 +14,8 @@ class CreateProjectDto {
   final String endDate;
   final String status;
   final double budget;
-  final List<File>? images;
+  final String? clientId;
+  final List<File>? images; // <-- Accept List<File>
 
   CreateProjectDto({
     required this.name,
@@ -23,6 +24,7 @@ class CreateProjectDto {
     required this.endDate,
     required this.status,
     required this.budget,
+    this.clientId,
     this.images,
   });
 
@@ -34,36 +36,45 @@ class CreateProjectDto {
       "endDate": endDate,
       "status": status,
       "budget": budget,
+      "clientId": clientId,
     };
   }
 
-  /// Convert DTO + compressed images → FormData
+  /// Build FormData exactly like your backend expects:
+  /// - "data": JSON string
+  /// - "files": array of MultipartFile
   Future<FormData> toFormData() async {
-    final formData = FormData();
+    final String jsonString = jsonEncode(toJson());
 
-    // Add JSON data
-    formData.fields.add(
-      MapEntry('data', jsonEncode(toJson())),
-    );
+    final List<MultipartFile> multipartFiles = [];
 
-    // Process and compress images before upload
     if (images != null && images!.isNotEmpty) {
-      for (final img in images!) {
-        // 🟡 Compress image using your ImageCompressor
-        final compressed = await ImageCompressor.compressImage(img);
+      for (final file in images!) {
+        // If you have a compressor utility, compress; otherwise use file directly
+        File fileToUpload;
+        try {
+          final compressed = await ImageCompressor.compressImage(file);
+          fileToUpload = compressed;
+        } catch (_) {
+          // if compressor fails for any reason, fallback to original file
+          fileToUpload = file;
+        }
 
-        formData.files.add(
-          MapEntry(
-            "files",
-            await MultipartFile.fromFile(
-              compressed.path,
-              filename: path.basename(compressed.path),
-            ),
-          ),
+        final multipart = await MultipartFile.fromFile(
+          fileToUpload.path,
+          filename: path.basename(fileToUpload.path),
         );
+
+        multipartFiles.add(multipart);
       }
     }
 
-    return formData;
+    final Map<String, dynamic> map = {
+      'data': jsonString,
+      // If there are files, include them. If not, include empty list to be explicit.
+      'files': multipartFiles,
+    };
+
+    return FormData.fromMap(map);
   }
 }

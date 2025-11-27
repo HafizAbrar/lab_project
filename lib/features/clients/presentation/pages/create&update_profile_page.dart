@@ -161,7 +161,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
             .read(
           updateClientProfileProvider(
             UpdateClientProfileParams(
-              profileId: widget.profile!.id,
+              profileId: widget.profile!.user_id,
               dto: dto,
               file: _pickedImage,
             ),
@@ -177,6 +177,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
         }
       } else {
         final dto = CreateClientProfileDto(
+          user_id: widget.clientId,
           name: _nameController.text,
           email: _emailController.text,
           phone: _phoneController.text,

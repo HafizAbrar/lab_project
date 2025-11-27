@@ -63,7 +63,7 @@ class AdminDashboardPage extends ConsumerWidget {
           child: authState.when(
             data: (user) {
               return ListView(
-                padding: EdgeInsets.zero, // removes default top padding
+                padding: EdgeInsets.zero,
                 children: [
                   UserAccountsDrawerHeader(
                     accountName: Text(user?.name ?? "Admin"),
@@ -72,71 +72,153 @@ class AdminDashboardPage extends ConsumerWidget {
                       child: Icon(Icons.admin_panel_settings, size: 32),
                     ),
                   ),
-                  ListTile(
+
+                  // ================================
+                  //  USERS - SUB MENU
+                  // ================================
+                  ExpansionTile(
                     leading: const Icon(Icons.people),
-                    title: const Text("Manage Users"),
-                    onTap: () {
-                      Navigator.pop(context);
-                      context.go('/users');
-                    },
+                    title: const Text("Users"),
+                    children: [
+                      ListTile(
+                        title: const Text("Manage Users"),
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.go('/users');
+                        },
+                      ),
+                      ListTile(
+                        title: const Text("Available Features"),
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.go('/users/available-features');
+                        },
+                      ),
+                    ],
                   ),
-                  ListTile(
+
+                  // ================================
+                  //  ROLES - SUB MENU
+                  // ================================
+                  ExpansionTile(
                     leading: const Icon(Icons.security),
-                    title: const Text("Manage Roles"),
-                    onTap: () {
-                      Navigator.pop(context);
-                      context.go('/roles');
-                    },
+                    title: const Text("Roles"),
+                    children: [
+                      ListTile(
+                        title: const Text("Manage Roles"),
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.go('/roles');
+                        },
+                      ),
+                      ListTile(
+                        title: const Text("Role Permissions"),
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.go('/roles/permissions');
+                        },
+                      ),
+                    ],
                   ),
-                  ListTile(
-                    leading: const Icon(Icons.featured_play_list_outlined),
-                    title: const Text("Features"),
-                    onTap: () {
-                      Navigator.pop(context);
-                      context.go('/users/available-features');
-                    },
-                  ),
-                  ListTile(
+
+                  // ================================
+                  //  EMPLOYEES
+                  // ================================
+                  ExpansionTile(
                     leading: const Icon(Icons.badge),
-                    title: const Text("Manage Employees"),
-                    onTap: () {
-                      Navigator.pop(context);
-                      context.go('/employees/manage');
-                    },
+                    title: const Text("Employees"),
+                    children: [
+                      ListTile(
+                        title: const Text("Manage Employees"),
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.go('/employees/manage');
+                        },
+                      ),
+                      ListTile(
+                        title: const Text("Employee Profiles"),
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.go('/employees/profiles');
+                        },
+                      ),
+                    ],
                   ),
-                  ListTile(
-                    leading: const Icon(Icons.badge),
-                    title: const Text("Manage Clients"),
-                    onTap: () {
-                      Navigator.pop(context);
-                      context.go('/clients/manage');
-                    },
+
+                  // ================================
+                  //  CLIENTS
+                  // ================================
+                  ExpansionTile(
+                    leading: const Icon(Icons.business),
+                    title: const Text("Clients"),
+                    children: [
+                      ListTile(
+                        title: const Text("Manage Clients"),
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.go('/clients/manage');
+                        },
+                      ),
+                      ListTile(
+                        title: const Text("Client Profiles"),
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.go('/clients/profiles');
+                        },
+                      ),
+                    ],
                   ),
-                  ListTile(
-                    leading: const Icon(Icons.pan_tool),
-                    title: const Text("Manage Skills"),
-                    onTap: () {
-                      Navigator.pop(context);
-                      context.go('/skills');
-                    },
-                  ),
-                  ListTile(
+
+                  // ================================
+                  //  PROJECTS
+                  // ================================
+                  ExpansionTile(
                     leading: const Icon(Icons.currency_exchange_rounded),
                     title: const Text("Projects"),
-                    onTap: () {
-                      Navigator.pop(context);
-                      context.go('/projects');
-                    },
+                    children: [
+                      ListTile(
+                        title: const Text("All Projects"),
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.go('/projects');
+                        },
+                      ),
+                      ListTile(
+                        title: const Text("Create Project"),
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.go('/projects/create');
+                        },
+                      ),
+                    ],
                   ),
-                  ListTile(
+
+                  // ================================
+                  //  CATEGORIES
+                  // ================================
+                  ExpansionTile(
                     leading: const Icon(Icons.category_outlined),
-                    title: const Text("Manage Categories"),
-                    onTap: () {
-                      Navigator.pop(context);
-                      context.go('/categories');
-                    },
+                    title: const Text("Categories"),
+                    children: [
+                      ListTile(
+                        title: const Text("Manage Categories"),
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.go('/categories');
+                        },
+                      ),
+                      ListTile(
+                        title: const Text("Create Category"),
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.go('/categories/create');
+                        },
+                      ),
+                    ],
                   ),
+
                   const Divider(),
+
                   ListTile(
                     leading: const Icon(Icons.exit_to_app),
                     title: const Text("Exit App"),
@@ -155,6 +237,7 @@ class AdminDashboardPage extends ConsumerWidget {
             error: (error, stackTrace) => Center(child: Text("Error: $error")),
           ),
         ),
+
 
 
         body: authState.when(

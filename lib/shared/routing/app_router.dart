@@ -22,6 +22,8 @@ import '../../features/clients/presentation/pages/manage_clients_page.dart';
 import '../../features/clients/presentation/pages/profiles_list_page.dart';
 import '../../features/employeeSkills/presentation/pages/create_employee_skill_screen.dart';
 import '../../features/employeeSkills/presentation/pages/employee_skills_list_screen.dart';
+import '../../features/projects/data/models/project_dto.dart';
+import '../../features/projects/presentation/pages/ProjectDetailsScreen.dart';
 import '../../features/projects/presentation/pages/all_projects_screen.dart';
 import '../../features/projects/presentation/pages/create_new_project_screen.dart';
 import '../../features/roles/presentation/pages/update_permission_page.dart';
@@ -192,7 +194,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/projects/create',
-        builder: (context, state) => const CreateNewProjectScreen(),
+        builder: (context, state) {
+          final project = state.extra as ProjectDto?; // null = create, not null = edit
+          return CreateNewProjectScreen(project: project);
+        },
+      ),
+      GoRoute(
+        name: 'projectDetails',
+        path: '/project-details',
+        builder: (context, state) {
+          final project = state.extra as ProjectDto;
+          return ProjectDetailsScreen(project: project);
+        },
       ),
       // ✅ Skills
       GoRoute(path: '/skills', builder: (_, __) => const SkillsScreen()),
@@ -221,7 +234,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/clients/profiles/:profileId/edit',
         builder: (context, state) {
           final profile = state.extra as ClientProfileDto;
-          return ClientProfileScreen(clientId: profile.id, profile: profile);
+          return ClientProfileScreen(clientId: profile.user_id, profile: profile);
         },
       ),
       GoRoute(

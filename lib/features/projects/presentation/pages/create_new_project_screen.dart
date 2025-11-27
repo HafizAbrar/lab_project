@@ -6,10 +6,13 @@ import 'package:intl/intl.dart';
 
 import '../../../clients/presentation/providers/clients_provider.dart';
 import '../../data/models/create_project_dto.dart';
+import '../../data/models/project_dto.dart';
 import '../providers/projects_providers.dart';
 
 class CreateNewProjectScreen extends ConsumerStatefulWidget {
-  const CreateNewProjectScreen({super.key});
+  final ProjectDto? project; // NULL = create, NOT NULL = update
+
+  const CreateNewProjectScreen({super.key, this.project});
 
   @override
   ConsumerState<CreateNewProjectScreen> createState() =>
@@ -27,29 +30,66 @@ class _CreateNewProjectScreenState
   DateTime? _startDate;
   DateTime? _endDate;
   String _status = 'in_progress';
-  List<File> _selectedImages = [];
+
+  List<File> _selectedImages = []; // new images (File)
+  List<String> _previousImages = []; // existing image URLs (String)
+
   String? _selectedClientId;
 
   final ImagePicker _picker = ImagePicker();
   bool _isSubmitting = false;
 
+  bool get isEdit => widget.project != null;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (isEdit) {
+      final p = widget.project!;
+      print("Editing Project ID: ${p.id}");
+      print("Name: ${p.name}");
+      print("Description: ${p.description}");
+      print("Start Date: ${p.startDate}");
+      print("End Date: ${p.endDate}");
+      print("Status: ${p.status}");
+      print("Budget: ${p.budget}");
+      print("Images: ${p.images}");
+      print("Client ID: ${p.clientId}");
+
+      _nameController.text = p.name;
+      _descriptionController.text = p.description;
+      _budgetController.text = p.budget.toString();
+
+      _startDate = DateTime.tryParse(p.startDate);
+      _endDate = DateTime.tryParse(p.endDate);
+
+      _status = p.status;
+      _previousImages = List<String>.from(p.images);
+
+      _selectedClientId = p.clientId;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+    }
+  }
+
   // -----------------------------------------------------
-// PICK MULTIPLE IMAGES
-// -----------------------------------------------------
+  // PICK MULTIPLE IMAGES
+  // -----------------------------------------------------
   Future<void> _pickImages() async {
     try {
-      // Pick multiple images from device gallery
       final pickedFiles = await _picker.pickMultiImage(
-        imageQuality: 80, // optional: compress images
-        maxWidth: 1024,   // optional: resize
+        imageQuality: 80,
+        maxWidth: 1024,
         maxHeight: 1024,
       );
 
       if (pickedFiles == null || pickedFiles.isEmpty) return;
 
       setState(() {
-        // Convert XFile to File
-        _selectedImages.addAll(pickedFiles.map((xfile) => File(xfile.path)));
+        _selectedImages.addAll(pickedFiles.map((x) => File(x.path)));
       });
     } catch (e) {
       if (!mounted) return;
@@ -59,7 +99,6 @@ class _CreateNewProjectScreenState
     }
   }
 
-
   // -----------------------------------------------------
   // DATE SELECTOR
   // -----------------------------------------------------
@@ -67,7 +106,7 @@ class _CreateNewProjectScreenState
     try {
       final picked = await showDatePicker(
         context: context,
-        initialDate: DateTime.now(),
+        initialDate: _startDate ?? DateTime.now(),
         firstDate: DateTime(2023),
         lastDate: DateTime(2035),
       );
@@ -107,61 +146,76 @@ class _CreateNewProjectScreenState
   }
 
   // -----------------------------------------------------
-  // SUBMIT PROJECT (CORRECTED SUCCESS/ERROR HANDLING)
+  // SUBMIT PROJECT (CREATE + UPDATE)
   // -----------------------------------------------------
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (_selectedClientId == null) {
+    if (!isEdit && _selectedClientId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please select a client")),
       );
       return;
     }
 
-    if (_startDate == null) {
+    if (_startDate == null || _endDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please select a start date")),
+        const SnackBar(content: Text("Please select start and end dates")),
       );
       return;
     }
-
-    if (_endDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please select an end date")),
-      );
-      return;
-    }
-
-    final dto = CreateProjectDto(
-      name: _nameController.text.trim(),
-      description: _descriptionController.text.trim(),
-      startDate: DateFormat("yyyy-MM-dd").format(_startDate!),
-      endDate: DateFormat("yyyy-MM-dd").format(_endDate!),
-      status: _status,
-      budget: double.tryParse(_budgetController.text.trim()) ?? 0.0,
-      images: _selectedImages,
-    );
 
     setState(() => _isSubmitting = true);
 
     try {
-      final result =
-      await ref.read(projectsProvider.notifier).createProject(dto);
+      if (isEdit) {
+        // UPDATE MODE
+        await ref.read(projectsProvider.notifier).updateProject(
+          widget.project!.id,
+          CreateProjectDto(
+            name: _nameController.text.trim(),
+            description: _descriptionController.text.trim(),
+            startDate: DateFormat("yyyy-MM-dd").format(_startDate!),
+            endDate: DateFormat("yyyy-MM-dd").format(_endDate!),
+            status: _status,
+            budget: double.tryParse(_budgetController.text.trim()) ?? 0.0,
+            images: _selectedImages,
+            clientId: _selectedClientId,
+          ),
+        );
 
-      if (!mounted) return;
+        if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("✅ Project created successfully!")),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("✅ Project updated successfully!")),
+        );
+      } else {
+        // CREATE MODE
+        final dto = CreateProjectDto(
+          name: _nameController.text.trim(),
+          description: _descriptionController.text.trim(),
+          startDate: DateFormat("yyyy-MM-dd").format(_startDate!),
+          endDate: DateFormat("yyyy-MM-dd").format(_endDate!),
+          status: _status,
+          budget: double.tryParse(_budgetController.text.trim()) ?? 0.0,
+          images: _selectedImages,
+          clientId: _selectedClientId,
+        );
+
+        await ref.read(projectsProvider.notifier).createProject(dto);
+
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("✅ Project created successfully!")),
+        );
+      }
 
       Navigator.pop(context, true);
-
-    } catch (error) {
+    } catch (e) {
       if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("❌ Error creating project: $error")),
+        SnackBar(content: Text("❌ Error: $e")),
       );
     } finally {
       if (mounted) {
@@ -178,7 +232,9 @@ class _CreateNewProjectScreenState
     final clientsAsync = ref.watch(clientsListProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Create New Project")),
+      appBar: AppBar(
+        title: Text(isEdit ? "Update Project" : "Create New Project"),
+      ),
       body: clientsAsync.when(
         data: (clients) {
           return SingleChildScrollView(
@@ -188,18 +244,20 @@ class _CreateNewProjectScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(labelText: "Select Client"),
-                    value: _selectedClientId,
-                    items: clients.map((client) {
-                      return DropdownMenuItem(
-                        value: client.id,
-                        child: Text(client.fullName),
-                      );
-                    }).toList(),
-                    onChanged: (val) => setState(() => _selectedClientId = val),
-                    validator: (val) => val == null ? "Please select a client" : null,
-                  ),
+                  if (!isEdit)
+                    DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(labelText: "Select Client"),
+                      value: _selectedClientId,
+                      items: clients.map((c) {
+                        return DropdownMenuItem(
+                          value: c.id,
+                          child: Text(c.fullName),
+                        );
+                      }).toList(),
+                      onChanged: (val) => setState(() => _selectedClientId = val),
+                      validator: (val) =>
+                      val == null ? "Please select a client" : null,
+                    ),
 
                   const SizedBox(height: 12),
 
@@ -225,8 +283,7 @@ class _CreateNewProjectScreenState
 
                   TextFormField(
                     controller: _budgetController,
-                    decoration:
-                    const InputDecoration(labelText: "Budget (optional)"),
+                    decoration: const InputDecoration(labelText: "Budget"),
                     keyboardType: TextInputType.number,
                   ),
 
@@ -265,53 +322,66 @@ class _CreateNewProjectScreenState
 
                   const SizedBox(height: 12),
 
+                  // ---------------- Images ----------------
                   ElevatedButton.icon(
                     onPressed: _pickImages,
                     icon: const Icon(Icons.photo),
-                    label: const Text("Pick Images"),
+                    label: Text(isEdit ? "Add More Images" : "Pick Images"),
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
 
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: _selectedImages
-                        .map((img) => Stack(
-                      children: [
-                        Image.file(
-                          img,
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.cover,
-                        ),
-                        Positioned(
-                          right: 0,
-                          top: 0,
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() => _selectedImages.remove(img));
-                            },
-                            child: const Icon(
-                              Icons.cancel,
-                              color: Colors.red,
+                    children: [
+                      // EXISTING IMAGES (network)
+                      ..._previousImages.map((img) => Stack(
+                        children: [
+                          Image.network(img,
+                              width: 80, height: 80, fit: BoxFit.cover),
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: GestureDetector(
+                              onTap: () => setState(
+                                      () => _previousImages.remove(img)),
+                              child:
+                              const Icon(Icons.cancel, color: Colors.red),
                             ),
                           ),
-                        ),
-                      ],
-                    ))
-                        .toList(),
+                        ],
+                      )),
+
+                      // NEW IMAGES (file)
+                      ..._selectedImages.map((img) => Stack(
+                        children: [
+                          Image.file(img,
+                              width: 80, height: 80, fit: BoxFit.cover),
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: GestureDetector(
+                              onTap: () => setState(
+                                      () => _selectedImages.remove(img)),
+                              child:
+                              const Icon(Icons.cancel, color: Colors.red),
+                            ),
+                          ),
+                        ],
+                      )),
+                    ],
                   ),
 
                   const SizedBox(height: 24),
 
                   _isSubmitting
-                      ? const Center(child: CircularProgressIndicator())
+                      ? const CircularProgressIndicator()
                       : ElevatedButton(
                     onPressed: _submit,
                     style: ElevatedButton.styleFrom(
                         minimumSize: const Size.fromHeight(50)),
-                    child: const Text("Create Project"),
+                    child: Text(isEdit ? "Update Project" : "Create Project"),
                   ),
                 ],
               ),

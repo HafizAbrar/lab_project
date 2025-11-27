@@ -1,3 +1,4 @@
+// lib/features/projects/data/sources/projects_remote_source.dart
 import 'package:dio/dio.dart';
 import '../models/create_project_dto.dart';
 import '../models/project_dto.dart';
@@ -7,92 +8,73 @@ class ProjectsRemoteSource {
 
   ProjectsRemoteSource(this.dio);
 
-  // ✅ Create Project (multipart/form-data)
-  Future<ProjectDto?> createProject(CreateProjectDto dto) async {
+  /// CREATE PROJECT
+  Future<ProjectDto> createProject(CreateProjectDto dto) async {
     try {
-      // Convert DTO to FormData (including images)
       final formData = await dto.toFormData();
 
       final response = await dio.post(
         '/projects',
         data: formData,
-        options: Options(
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'multipart/form-data',
-          },
-        ),
+        options: Options(contentType: 'multipart/form-data'),
       );
 
-      // Optional: check if API response indicates failure
-      if (response.statusCode == 200) {
-        return ProjectDto.fromJson(response.data);
-      } else {
-        // Handle unexpected status codes
-        throw Exception(
-            'Server returned status code ${response.statusCode}');
-      }
-    } on DioError catch (dioError) {
-      // Handle Dio-specific errors
-      String? message = 'Unknown Dio error';
-      if (dioError.response != null && dioError.response?.data != null) {
-        message = dioError.response?.data['message'] ??
-            dioError.response?.statusMessage ??
-            message;
-      } else if (dioError.message!.isNotEmpty) {
-        message = dioError.message;
-      }
-      print('❌ Dio error while creating project: $message');
-      throw Exception(message);
-    } catch (e) {
-      // Catch-all for other errors
-      print('❌ Unexpected error while creating project: $e');
-      throw Exception('Unexpected error: $e');
-    }
-  }
+      // Many backends wrap result in { data: {...} } — handle both shapes.
+      final responseData = response.data is Map && response.data.containsKey('data')
+          ? response.data['data']
+          : response.data;
 
-
-  // ✅ Get all projects
-  Future<List<ProjectDto>> getAllProjects() async {
-    try {
-      final response = await dio.get('/projects');
-      final data = response.data is List ? response.data : response.data['data'];
-      return (data as List).map((e) => ProjectDto.fromJson(e)).toList();
+      return ProjectDto.fromJson(responseData);
     } catch (e) {
-      print('❌ Dio error while fetching projects: $e');
+      print('❌ Error creating project: $e');
       rethrow;
     }
   }
 
-  // ✅ Update Project (with image & formData support)
+  /// GET ALL PROJECTS
+  Future<List<ProjectDto>> getAllProjects() async {
+    try {
+      final response = await dio.get('/projects');
+
+      final data = response.data is List
+          ? response.data
+          : response.data['data'] ?? [];
+
+      return (data as List).map((e) => ProjectDto.fromJson(e)).toList();
+    } catch (e) {
+      print('❌ Error fetching projects: $e');
+      rethrow;
+    }
+  }
+
+  /// UPDATE PROJECT
   Future<ProjectDto> updateProject(String id, CreateProjectDto dto) async {
     try {
       final formData = await dto.toFormData();
 
-      final response = await dio.post(
-        '/projects/$id?_method=PUT', // For Laravel-style update routes
+      final response = await dio.patch(
+        '/projects/$id',
         data: formData,
-        options: Options(
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'multipart/form-data',
-          },
-        ),
+        options: Options(contentType: 'multipart/form-data'),
       );
 
-      return ProjectDto.fromJson(response.data);
+      final responseData = response.data is Map && response.data.containsKey('data')
+          ? response.data['data']
+          : response.data;
+
+      return ProjectDto.fromJson(responseData);
     } catch (e) {
-      print('❌ Dio error while updating project: $e');
+      print('❌ Error updating project: $e');
       rethrow;
     }
   }
 
-  // ✅ Delete Project
+  /// DELETE PROJECT
   Future<void> deleteProject(String id) async {
     try {
       await dio.delete('/projects/$id');
     } catch (e) {
-      print('❌ Dio error while deleting project: $e');
+      print('❌ Error deleting project: $e');
       rethrow;
     }
   }

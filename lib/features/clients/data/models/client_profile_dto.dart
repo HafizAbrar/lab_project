@@ -1,7 +1,7 @@
 // clients_dto.dart
 
 class ClientProfileDto {
-  final String id;
+  final String user_id;
   final String name;
   final String email;
   final String phone;
@@ -11,7 +11,7 @@ class ClientProfileDto {
   final String profilePhoto;
 
   ClientProfileDto({
-    required this.id,
+    required this.user_id,
     required this.name,
     required this.email,
     required this.phone,
@@ -23,7 +23,7 @@ class ClientProfileDto {
 
   factory ClientProfileDto.fromJson(Map<String, dynamic> json) {
     return ClientProfileDto(
-      id: json['id'] ?? '',
+      user_id: json['user_id'] ?? '',
       name: json['name'] ?? '',
       email: json['email'] ?? '',
       phone: json['phone'] ?? '',
@@ -36,7 +36,7 @@ class ClientProfileDto {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'user_id': user_id,
       'name': name,
       'email': email,
       'phone': phone,

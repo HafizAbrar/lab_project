@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 class CreateClientProfileDto {
+  final String user_id;
   final String name;
   final String? email;
   final String? phone;
@@ -11,6 +12,7 @@ class CreateClientProfileDto {
   final String? website; // ✅ optional
 
   CreateClientProfileDto({
+    required this.user_id,
     required this.name,
     this.email,
     this.phone,
@@ -21,6 +23,7 @@ class CreateClientProfileDto {
 
   Map<String, dynamic> toJson() {
     return {
+      "user_id": user_id,
       "name": name,
       "email": email,
       "phone": phone,

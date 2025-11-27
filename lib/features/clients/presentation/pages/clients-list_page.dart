@@ -122,7 +122,7 @@ class ClientsListPage extends ConsumerWidget {
                               );
                             } else if (value == 'updateProfile' && profile != null) {
                               context.push(
-                                '/clients/profiles/${profile.id}/edit',
+                                '/clients/profiles/${profile.user_id}/edit',
                                 extra: profile,
                               );
                             }
